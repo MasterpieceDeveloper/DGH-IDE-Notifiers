@@ -1,17 +1,17 @@
 (**
-  
+
   This module contains a class which implements the IOTASourceEditorNotifier interface for monitoring
   changes in the source editor.
 
   @Author  David Hoyle
   @Version 1.656
   @Date    09 Feb 2020
-  
+
   @license
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -28,38 +28,36 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.SourceEditorNotifier;
+unit DGHIDENotifiers.SourceEditorNotifier;
 
-Interface
+interface
 
 {$INCLUDE CompilerDefinitions.inc}
 
-Uses
+uses
   ToolsAPI,
   Classes,
   DGHIDENotifiers.Types;
 
-Type
+type
   (** A class which implements the IOTAEditViewNotifier. **)
-  TDINSourceEditorNotifier = Class(TDGHNotifierObject, IInterface, IOTANotifier, IOTAEditorNotifier)
-  Strict Private
+  TDINSourceEditorNotifier = class(TDGHNotifierObject, IInterface, IOTANotifier, IOTAEditorNotifier)
+  strict private
     {$IFDEF DXE100}
     FEditViewNotifierIndex: Integer;
     FView: IOTAEditView;
     {$ENDIF DXE100}
-  Strict Protected
-    Procedure ViewActivated(Const View: IOTAEditView);
-    Procedure ViewNotification(Const View: IOTAEditView; Operation: TOperation);
-  Public
-    Constructor Create(Const strNotifier, strFileName : String;
-      Const iNotification : TDGHIDENotification; Const SourceEditor : IOTASourceEditor); ReIntroduce;
-      Overload;
-    Destructor Destroy; Override;
-  End;
+  strict protected
+    procedure ViewActivated(const View: IOTAEditView);
+    procedure ViewNotification(const View: IOTAEditView; Operation: TOperation);
+  public
+    constructor Create(const strNotifier, strFileName: string; const iNotification: TDGHIDENotification; const SourceEditor: IOTASourceEditor); reintroduce; overload;
+    destructor Destroy; override;
+  end;
 
-Implementation
+implementation
 
-Uses
+uses
   {$IFDEF DEBUG}
   CodeSiteLogging,
   {$ENDIF DEBUG}
@@ -81,19 +79,17 @@ Uses
   @param   SourceEditor  as an IOTASourceEditor as a constant
 
 **)
-Constructor TDINSourceEditorNotifier.Create(Const strNotifier, strFileName: String;
-  Const iNotification: TDGHIDENotification; Const SourceEditor : IOTASourceEditor);
-
-Begin
-  Inherited Create(strNotifier, strFileName, iNotification);
+constructor TDINSourceEditorNotifier.Create(const strNotifier, strFileName: string; const iNotification: TDGHIDENotification; const SourceEditor: IOTASourceEditor);
+begin
+  inherited Create(strNotifier, strFileName, iNotification);
   {$IFDEF DXE100}
   FEditViewNotifierIndex := -1;
   FView := Nil;
   // Workaround for new modules create after the IDE has started
-  If SourceEditor.EditViewCount > 0 Then
+  if SourceEditor.EditViewCount > 0 then
     ViewNotification(SourceEditor.EditViews[0], opInsert);
   {$ENDIF DXE100}
-End;
+end;
 
 (**
 
@@ -103,14 +99,13 @@ End;
   @postcon Tries to remove the view notifier.
 
 **)
-Destructor TDINSourceEditorNotifier.Destroy;
-
-Begin
+destructor TDINSourceEditorNotifier.Destroy;
+begin
   {$IFDEF DXE100}
   ViewNotification(FView, opRemove);
   {$ENDIF DXE100}
-  Inherited Destroy;
-End;
+  inherited Destroy;
+end;
 
 (**
 
@@ -122,19 +117,12 @@ End;
   @param   View as an IOTAEditView as a constant
 
 **)
-Procedure TDINSourceEditorNotifier.ViewActivated(Const View: IOTAEditView);
-
-ResourceString
+procedure TDINSourceEditorNotifier.ViewActivated(const View: IOTAEditView);
+resourcestring
   strViewActivate = '.ViewActivate = View.TopRow: %d';
-
-Begin
-  DoNotification(
-    Format(
-      strViewActivate,
-      [View.TopRow]
-    )
-  );
-End;
+begin
+  DoNotification(Format(strViewActivate, [View.TopRow]));
+end;
 
 (**
 
@@ -152,46 +140,31 @@ End;
   @param   Operation as a TOperation
 
 **)
-Procedure TDINSourceEditorNotifier.ViewNotification(Const View: IOTAEditView; Operation: TOperation);
-
-ResourceString
+procedure TDINSourceEditorNotifier.ViewNotification(const View: IOTAEditView; Operation: TOperation);
+resourcestring
   strViewActivate = '.ViewActivate = View.TopRow: %d, Operation: %s';
-
-Const
+const
   strINTAEditViewNotifier = 'INTAEditViewNotifier';
-
-Begin
-  DoNotification(
-    Format(
-      strViewActivate,
-      [
-        View.TopRow,
-        GetEnumName(TypeInfo(TOperation), Ord(Operation))
-      ]
-    )
-  );
+begin
+  DoNotification(Format(strViewActivate, [View.TopRow, GetEnumName(TypeInfo(TOperation), Ord(Operation))]));
   {$IFDEF DXE100}
-  Case Operation Of
-    // Only create a notifier if one has not already been created!
+  case Operation of    // Only create a notifier if one has not already been created!
     opInsert:
-      If FEditViewNotifierIndex = -1 Then 
-        Begin
-          FView := View;
-          FEditViewNotifierIndex := View.AddNotifier(TDINEditViewNotifier.Create(
-            strINTAEditViewNotifier, FileName, dinEditViewNotifier
-          ));
-        End;
+      if FEditViewNotifierIndex = -1 then
+      begin
+        FView := View;
+        FEditViewNotifierIndex := View.AddNotifier(TDINEditViewNotifier.Create(strINTAEditViewNotifier, FileName, dinEditViewNotifier));
+      end;
     // opRemove Never gets called!
     opRemove:
-      If FEditViewNotifierIndex > -1 Then
-        Begin
-          View.RemoveNotifier(FEditViewNotifierIndex);
-          FEditViewNotifierIndex := -1;
-        End;
-  End;
+      if FEditViewNotifierIndex > -1 then
+      begin
+        View.RemoveNotifier(FEditViewNotifierIndex);
+        FEditViewNotifierIndex := -1;
+      end;
+  end;
   {$ENDIF DXE100}
-End;
+end;
 
-End.
-
+end.
 

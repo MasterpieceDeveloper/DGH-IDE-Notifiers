@@ -11,7 +11,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -28,9 +28,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.MessageTokens;
+unit DGHIDENotifiers.MessageTokens;
 
-Interface
+interface
 
 {$INCLUDE 'CompilerDefinitions.inc'}
 
@@ -38,87 +38,84 @@ Interface
 {$DEFINE REGULAREXPRESSIONS}
 {$ENDIF}
 
-Uses
+uses
   {$IFDEF REGULAREXPRESSIONS}
   RegularExpressions,
   {$ENDIF}
   Generics.Collections,
   DGHIDENotifiers.Interfaces;
 
-Type
+type
   (** A record to describe the information required to be stored for a message token. **)
-  TDNToken = Record
-  Strict Private
+  TDNToken = record
+  strict private
     //: @nohints
-    FToken      : String;
+    FToken: string;
     //: @nohints
-    FTokenType  : TDNTokenType;
+    FTokenType: TDNTokenType;
     //: @nohints
-    FRegExMatch : Boolean;
-  Public
-    Constructor Create(Const strToken : String; Const eTokenType : TDNTokenType;
-      Const boolRegExMatch : Boolean);
+    FRegExMatch: Boolean;
+  public
+    constructor Create(const strToken: string; const eTokenType: TDNTokenType; const boolRegExMatch: Boolean);
     (**
       This property returns the text of the token.
       @precon  None
       @postcon Returns the text of the token.
       @return  a String
     **)
-    Property Text : String Read FToken;
+    property Text: string read FToken;
     (**
       This property returns the type of the token.
       @precon  None
       @postcon Returns the type of the token.
       @return  a TDNTokenType
     **)
-    Property TokenType : TDNTokenType Read FTokenType;
+    property TokenType: TDNTokenType read FTokenType;
     (**
       This property returns whether the token is a regular expression match.
       @precon  None.
       @postcon Returns whether the token is a regular expression match.
       @return  a Boolean
     **)
-    Property RegExMatch : Boolean Read FRegExMatch;
-  End;
+    property RegExMatch: Boolean read FRegExMatch;
+  end;
 
   (** A class to tokenize the message streams. **)
-  TDNMessageTokenizer = Class
-  Strict Private
-    FTokens     : TList<TDNToken>;
-    FMessage    : String;
-    FMsgPos     : Integer;
+  TDNMessageTokenizer = class
+  strict private
+    FTokens: TList<TDNToken>;
+    FMessage: string;
+    FMsgPos: Integer;
     {$IFDEF REGULAREXPRESSIONS}
-    FRegEx      : TRegEx;
-    FMatches    : TMatchCollection;
+    FRegEx: TRegEx;
+    FMatches: TMatchCollection;
     {$ENDIF}
     FIsFiltering: Boolean;
-  Strict Protected
-    Function  GetCount : Integer;
-    Function  GetToken(Const iIndex : Integer) : TDNToken;
-    Function  GetCurChar : Char; InLine;
-    Procedure TokenizeStream;
-    Procedure ParseInterface;
-    Procedure ParseIdentifier;
-    Procedure ParseMethodName;
-    Procedure ParseModuleName;
-    Procedure ParseParameters;
-    Procedure ParseSpace;
-    Procedure ParseParameter;
-    Procedure ParseRemainingCharacters;
-    Procedure AddToken(Const strToken : String; Const eTokenType : TDNTokenType;
-      Const iPosition : Integer); Overload;
-    Procedure AddToken(Const strToken : String; Const eTokenType : TDNTokenType;
-      Const boolMatch : Boolean); Overload;
-  Public
-    Constructor Create(Const strMessage, strRegEx : String);
-    Destructor Destroy; Override;
+  strict protected
+    function GetCount: Integer;
+    function GetToken(const iIndex: Integer): TDNToken;
+    function GetCurChar: Char; inline;
+    procedure TokenizeStream;
+    procedure ParseInterface;
+    procedure ParseIdentifier;
+    procedure ParseMethodName;
+    procedure ParseModuleName;
+    procedure ParseParameters;
+    procedure ParseSpace;
+    procedure ParseParameter;
+    procedure ParseRemainingCharacters;
+    procedure AddToken(const strToken: string; const eTokenType: TDNTokenType; const iPosition: Integer); overload;
+    procedure AddToken(const strToken: string; const eTokenType: TDNTokenType; const boolMatch: Boolean); overload;
+  public
+    constructor Create(const strMessage, strRegEx: string);
+    destructor Destroy; override;
     (**
       This property returns the number of tokens in the collection.
       @precon  None.
       @postcon Returns the number of tokens in the collection.
       @return  an Integer
     **)
-    Property Count : Integer Read GetCount;
+    property Count: Integer read GetCount;
     (**
       This property returns the indexed token from the collection.
       @precon  iIndex must be a valid index between 0 and Count - 1.
@@ -126,12 +123,12 @@ Type
       @param   iIndex as an Integer as a constant
       @return  a TDNToken
     **)
-    Property Token[Const iIndex : Integer] : TDNToken Read GetToken; Default;
-  End;
+    property Token[const iIndex: Integer]: TDNToken read GetToken; Default;
+  end;
 
-Implementation
+implementation
 
-Uses
+uses
   {$IFDEF REGULAREXPRESSIONS}
   RegularExpressionsCore,
   {$ENDIF}
@@ -151,14 +148,12 @@ Uses
   @param   boolRegExMatch as a Boolean as a constant
 
 **)
-Constructor TDNToken.Create(Const strToken : String; Const eTokenType : TDNTokenType;
-  Const boolRegExMatch : Boolean);
-
-Begin
+constructor TDNToken.Create(const strToken: string; const eTokenType: TDNTokenType; const boolRegExMatch: Boolean);
+begin
   FToken := strToken;
   FTokenType := eTokenType;
   FRegExMatch := boolRegExMatch;
-End;
+end;
 
 { TDNMessageTokenizer }
 
@@ -174,13 +169,11 @@ End;
   @param   boolMatch  as a Boolean as a constant
 
 **)
-Procedure TDNMessageTokenizer.AddToken(Const strToken: String; Const eTokenType: TDNTokenType;
-  Const boolMatch : Boolean);
-
-Begin
-  If Length(strToken) > 0 Then
+procedure TDNMessageTokenizer.AddToken(const strToken: string; const eTokenType: TDNTokenType; const boolMatch: Boolean);
+begin
+  if Length(strToken) > 0 then
     FTokens.Add(TDNToken.Create(strToken, eTokenType, boolMatch));
-End;
+end;
 
 (**
 
@@ -194,54 +187,53 @@ End;
   @param   iPosition  as an Integer as a constant
 
 **)
-Procedure TDNMessageTokenizer.AddToken(Const strToken : String; Const eTokenType : TDNTokenType;
-  Const iPosition : Integer); //FI:O804
+procedure TDNMessageTokenizer.AddToken(const strToken: string; const eTokenType: TDNTokenType; const iPosition: Integer); //FI:O804
 
 {$IFDEF REGULAREXPRESSIONS}
-Var
-  iMatch : Integer;
+var
+  iMatch: Integer;
   M: TMatch;
   iStart: Integer;
   iEnd: Integer;
-  iIndex : Integer;
+  iIndex: Integer;
 {$ENDIF}
 
-Begin
-  If Length(strToken) > 0 Then
+begin
+  if Length(strToken) > 0 then
     {$IFDEF REGULAREXPRESSIONS}
-    If FIsFiltering And (FMatches.Count > 0) Then
-      Begin
-        iStart := 1;
-        For iMatch := 0 To FMatches.Count - 1 Do
-          Begin
-            M := FMatches[iMatch];
-            iIndex := M.Index - iPosition + 1;
-            If iIndex > iStart Then
-              Begin
+    if FIsFiltering and (FMatches.Count > 0) then
+    begin
+      iStart := 1;
+      for iMatch := 0 to FMatches.Count - 1 do
+      begin
+        M := FMatches[iMatch];
+        iIndex := M.Index - iPosition + 1;
+        if iIndex > iStart then
+        begin
                 // Non match at start of token
-                iEnd := iIndex; // One passed end point
-                AddToken(Copy(strToken, iStart, iEnd - iStart), eTokenType, False);
-                iStart := iEnd;
+          iEnd := iIndex; // One passed end point
+          AddToken(Copy(strToken, iStart, iEnd - iStart), eTokenType, False);
+          iStart := iEnd;
                 // Match
-                Inc(iEnd, M.Length);
-                AddToken(Copy(strToken, iStart, iEnd - iStart), eTokenType, True);
-                iStart := iEnd;
-              End Else
-            // Match at start of token
-            If iIndex + M.Length - 1 > iStart Then
-              Begin
-                iEnd := iIndex + M.Length;
-                AddToken(Copy(strToken, iStart, iEnd - iStart), eTokenType, True);
-                iStart := iEnd;
-              End;
-          End;
+          Inc(iEnd, M.Length);
+          AddToken(Copy(strToken, iStart, iEnd - iStart), eTokenType, True);
+          iStart := iEnd;
+        end
+        else            // Match at start of token
+if iIndex + M.Length - 1 > iStart then
+        begin
+          iEnd := iIndex + M.Length;
+          AddToken(Copy(strToken, iStart, iEnd - iStart), eTokenType, True);
+          iStart := iEnd;
+        end;
+      end;
         // Check end...
-        If Length(strToken) >= iStart Then
-          AddToken(Copy(strToken, iStart, Length(strToken) - iStart + 1), eTokenType, False);
-      End Else
-    {$ENDIF}
-        AddToken(strToken, eTokenType, False);
-End;
+      if Length(strToken) >= iStart then
+        AddToken(Copy(strToken, iStart, Length(strToken) - iStart + 1), eTokenType, False);
+    end
+    else    {$ENDIF}
+      AddToken(strToken, eTokenType, False);
+end;
 
 (**
 
@@ -254,31 +246,30 @@ End;
   @param   strRegEx   as a String as a constant
 
 **)
-Constructor TDNMessageTokenizer.Create(Const strMessage, strRegEx : String);
-
-Begin
+constructor TDNMessageTokenizer.Create(const strMessage, strRegEx: string);
+begin
   FTokens := TList<TDNToken>.Create;
   FMessage := strMessage;
   FMsgPos := 1;
   FIsFiltering := False;
-  If Length(strRegEx) > 0 Then
-    Begin
+  if Length(strRegEx) > 0 then
+  begin
       {$IFDEF REGULAREXPRESSIONS}
-      Try
-        FRegEx := TRegEx.Create(strRegEx, [roIgnoreCase, roCompiled, roSingleLine]);
-        FMatches := FRegEx.Matches(strMessage);
+    try
+      FRegEx := TRegEx.Create(strRegEx, [roIgnoreCase, roCompiled, roSingleLine]);
+      FMatches := FRegEx.Matches(strMessage);
       {$ENDIF}
-        FIsFiltering := True;
+      FIsFiltering := True;
       {$IFDEF REGULAREXPRESSIONS}
-      Except
-        On E : ERegularExpressionError Do
+    except
+      on E: ERegularExpressionError do
         FIsFiltering := False;
-      End;
+    end;
       {$ENDIF}
-    End;
-  If Length(FMessage) > 0 Then
+  end;
+  if Length(FMessage) > 0 then
     TokenizeStream;
-End;
+end;
 
 (**
 
@@ -288,12 +279,11 @@ End;
   @postcon Frees the memory used by the class.
 
 **)
-Destructor TDNMessageTokenizer.Destroy;
-
-Begin
+destructor TDNMessageTokenizer.Destroy;
+begin
   FTokens.Free;
-  Inherited;
-End;
+  inherited;
+end;
 
 (**
 
@@ -305,11 +295,10 @@ End;
   @return  an Integer
 
 **)
-Function TDNMessageTokenizer.GetCount: Integer;
-
-Begin
+function TDNMessageTokenizer.GetCount: Integer;
+begin
   Result := FTokens.Count;
-End;
+end;
 
 (**
 
@@ -323,13 +312,12 @@ End;
   @return  a Char
 
 **)
-Function TDNMessageTokenizer.GetCurChar: Char;
-
-Begin
+function TDNMessageTokenizer.GetCurChar: Char;
+begin
   Result := #0;
-  If FMsgPos <= Length(FMessage) Then
+  if FMsgPos <= Length(FMessage) then
     Result := FMessage[FMsgPos];
-End;
+end;
 
 (**
 
@@ -342,11 +330,10 @@ End;
   @return  a TDNToken
 
 **)
-Function TDNMessageTokenizer.GetToken(Const iIndex: Integer): TDNToken;
-
-Begin
+function TDNMessageTokenizer.GetToken(const iIndex: Integer): TDNToken;
+begin
   Result := FTokens[iIndex];
-End;
+end;
 
 (**
 
@@ -357,45 +344,42 @@ End;
            the end of the identifier.
 
 **)
-Procedure TDNMessageTokenizer.ParseIdentifier;
-
-
-Var
-  strToken : String;
-  iTokenLen  :Integer;
-  iPosition : Integer;
-
-Begin
+procedure TDNMessageTokenizer.ParseIdentifier;
+var
+  strToken: string;
+  iTokenLen: Integer;
+  iPosition: Integer;
+begin
   SetLength(strToken, Length(FMessage));
   iTokenLen := 0;
-  If GetCurChar <> #0 Then
-    Begin
-      iPosition := FMsgPos;
-      Case FMessage[FMsgPos] Of
-        'a'..'z', 'A'..'Z':
-          Begin
+  if GetCurChar <> #0 then
+  begin
+    iPosition := FMsgPos;
+    case FMessage[FMsgPos] of
+      'a'..'z', 'A'..'Z':
+        begin
+          Inc(iTokenLen);
+          strToken[iTokenLen] := FMessage[FMsgPos];
+          Inc(FMsgPos);
+        end;
+    end;
+    while FMsgPos <= Length(FMessage) do
+    begin
+      case FMessage[FMsgPos] of
+        'a'..'z', 'A'..'Z', '0'..'9':
+          begin
             Inc(iTokenLen);
             strToken[iTokenLen] := FMessage[FMsgPos];
             Inc(FMsgPos);
-          End;
-      End;
-      While FMsgPos <= Length(FMessage) Do
-        Begin
-          Case FMessage[FMsgPos] Of
-          'a'..'z', 'A'..'Z', '0'..'9':
-            Begin
-              Inc(iTokenLen);
-              strToken[iTokenLen] := FMessage[FMsgPos];
-              Inc(FMsgPos);
-            End;
-          Else
-            Break;
-          End;
-        End;
-      SetLength(strToken, iTokenLen);
-      AddToken(strToken, ttReservedWord, iPosition);
-    End;
-End;
+          end;
+      else
+        Break;
+      end;
+    end;
+    SetLength(strToken, iTokenLen);
+    AddToken(strToken, ttReservedWord, iPosition);
+  end;
+end;
 
 (**
 
@@ -406,11 +390,10 @@ End;
   @postcon The interface is parsed.
 
 **)
-Procedure TDNMessageTokenizer.ParseInterface;
-
-Begin
+procedure TDNMessageTokenizer.ParseInterface;
+begin
   ParseIdentifier;
-End;
+end;
 
 (**
 
@@ -421,11 +404,10 @@ End;
   @postcon The methodname is parsed.
 
 **)
-Procedure TDNMessageTokenizer.ParseMethodName;
-
-Begin
+procedure TDNMessageTokenizer.ParseMethodName;
+begin
   ParseIdentifier;
-End;
+end;
 
 (**
 
@@ -436,36 +418,34 @@ End;
            the end of the modulename.
 
 **)
-Procedure TDNMessageTokenizer.ParseModuleName;
-
-Var
-  strToken : String;
-  iTokenLen : Integer;
-  iPosition : Integer;
-
-Begin
-  If GetCurChar = '(' Then
-    Begin
+procedure TDNMessageTokenizer.ParseModuleName;
+var
+  strToken: string;
+  iTokenLen: Integer;
+  iPosition: Integer;
+begin
+  if GetCurChar = '(' then
+  begin
+    AddToken(GetCurChar, ttSymbol, FMsgPos);
+    Inc(FMsgPos);
+    iPosition := FMsgPos;
+    SetLength(strToken, Length(FMessage));
+    iTokenLen := 0;
+    while not CharInSet(GetCurChar, [#0, ')']) do
+    begin
+      Inc(iTokenLen);
+      strToken[iTokenLen] := FMessage[FMsgPos];
+      Inc(FMsgPos);
+    end;
+    SetLength(strToken, iTokenLen);
+    AddToken(strToken, ttIdentifier, iPosition);
+    if GetCurChar = ')' then
+    begin
       AddToken(GetCurChar, ttSymbol, FMsgPos);
       Inc(FMsgPos);
-      iPosition := FMsgPos;
-      SetLength(strToken, Length(FMessage));
-      iTokenLen := 0;
-      While Not CharInSet(GetCurChar, [#0, ')']) Do
-        Begin
-          Inc(iTokenLen);
-          strToken[iTokenLen] := FMessage[FMsgPos];
-          Inc(FMsgPos);
-        End;
-      SetLength(strToken, iTokenLen);
-      AddToken(strToken, ttIdentifier, iPosition);
-      If GetCurChar = ')' Then
-        Begin
-          AddToken(GetCurChar, ttSymbol, FMsgPos);
-          Inc(FMsgPos);
-        End;
-    End;
-End;
+    end;
+  end;
+end;
 
 (**
 
@@ -476,44 +456,42 @@ End;
            the end of the parameter.
 
 **)
-Procedure TDNMessageTokenizer.ParseParameter;
-
-Var
-  strToken : String;
-  iTokenLen : Integer;
+procedure TDNMessageTokenizer.ParseParameter;
+var
+  strToken: string;
+  iTokenLen: Integer;
   iPosition: Integer;
-  dblValue : Double;
-  iErrorCode : Integer;
-
-Begin
+  dblValue: Double;
+  iErrorCode: Integer;
+begin
   ParseIdentifier;
-  While GetCurChar = '.' Do // Handle qualified tokens.
-    Begin
-      AddToken(GetCurChar, ttSymbol, FMsgPos);
+  while GetCurChar = '.' do // Handle qualified tokens.
+  begin
+    AddToken(GetCurChar, ttSymbol, FMsgPos);
+    Inc(FMsgPos);
+    ParseIdentifier;
+  end;
+  if GetCurChar = ':' then
+  begin
+    AddToken(GetCurChar, ttSymbol, FMsgPos);
+    Inc(FMsgPos);
+    iPosition := FMsgPos;
+    SetLength(strToken, Length(FMessage));
+    iTokenLen := 0;
+    while not CharInSet(GetCurChar, [#0, ',']) do
+    begin
+      Inc(iTokenLen);
+      strToken[iTokenLen] := FMessage[FMsgPos];
       Inc(FMsgPos);
-      ParseIdentifier;
-    End;
-  If GetCurChar = ':' Then
-    Begin
-      AddToken(GetCurChar, ttSymbol, FMsgPos);
-      Inc(FMsgPos);
-      iPosition := FMsgPos;
-      SetLength(strToken, Length(FMessage));
-      iTokenLen := 0;
-      While Not CharInSet(GetCurChar, [#0, ',']) Do
-        Begin
-          Inc(iTokenLen);
-          strToken[iTokenLen] := FMessage[FMsgPos];
-          Inc(FMsgPos);
-        End;
-      SetLength(strToken, iTokenLen);
-      Val(strToken, dblValue, iErrorCode);
-      If iErrorCode = 0 Then
-        AddToken(strToken, ttNumber, iPosition)
-      Else
-        AddToken(strToken, ttIdentifier, iPosition);
-    End;
-End;
+    end;
+    SetLength(strToken, iTokenLen);
+    Val(strToken, dblValue, iErrorCode);
+    if iErrorCode = 0 then
+      AddToken(strToken, ttNumber, iPosition)
+    else
+      AddToken(strToken, ttIdentifier, iPosition);
+  end;
+end;
 
 (**
 
@@ -524,25 +502,24 @@ End;
            the end of the parameters.
 
 **)
-Procedure TDNMessageTokenizer.ParseParameters;
-
-Begin
+procedure TDNMessageTokenizer.ParseParameters;
+begin
   ParseSpace;
-  If GetCurChar = '=' Then
-    Begin
+  if GetCurChar = '=' then
+  begin
+    AddToken(GetCurChar, ttSymbol, FMsgPos);
+    Inc(FMsgPos);
+    ParseSpace;
+    ParseParameter;
+    while GetCurChar = ',' do
+    begin
       AddToken(GetCurChar, ttSymbol, FMsgPos);
       Inc(FMsgPos);
       ParseSpace;
       ParseParameter;
-      While GetCurChar = ',' Do
-        Begin
-          AddToken(GetCurChar, ttSymbol, FMsgPos);
-          Inc(FMsgPos);
-          ParseSpace;
-          ParseParameter;
-        End;
-    End;
-End;
+    end;
+  end;
+end;
 
 (**
 
@@ -553,26 +530,24 @@ End;
   @postcon The remaining unparsed characters in the message are parsed.
 
 **)
-Procedure TDNMessageTokenizer.ParseRemainingCharacters;
-
-Var
-  strToken : String;
+procedure TDNMessageTokenizer.ParseRemainingCharacters;
+var
+  strToken: string;
   iTokenLen: Integer;
   iPosition: Integer;
-
-Begin
+begin
   iPosition := FMsgPos;
   SetLength(strToken, Length(FMessage));
   iTokenLen := 0;
-  While GetCurChar <> #0 Do
-    Begin
-      Inc(iTokenLen);
-      strToken[iTokenLen] := GetCurChar;
-      Inc(FMsgPos);
-    End;
+  while GetCurChar <> #0 do
+  begin
+    Inc(iTokenLen);
+    strToken[iTokenLen] := GetCurChar;
+    Inc(FMsgPos);
+  end;
   SetLength(strToken, iTokenLen);
   AddToken(strToken, ttUnknown, iPosition);
-End;
+end;
 
 (**
 
@@ -582,15 +557,14 @@ End;
   @postcon A space in the message stream is eaten and added as a token.
 
 **)
-Procedure TDNMessageTokenizer.ParseSpace;
-
-Begin
-  If GetCurChar = #32 Then
-    Begin
-      AddToken(GetCurChar, ttWhiteSpace, FMsgPos);
-      Inc(FMsgPos);
-    End;
-End;
+procedure TDNMessageTokenizer.ParseSpace;
+begin
+  if GetCurChar = #32 then
+  begin
+    AddToken(GetCurChar, ttWhiteSpace, FMsgPos);
+    Inc(FMsgPos);
+  end;
+end;
 
 (**
 
@@ -602,19 +576,19 @@ End;
   @postcon The message is parsed and tokenized into the token collection.
 
 **)
-Procedure TDNMessageTokenizer.TokenizeStream;
-
-Begin
+procedure TDNMessageTokenizer.TokenizeStream;
+begin
   ParseInterface;
   ParseModuleName;
-  If GetCurChar = '.' Then
-    Begin
-      AddToken(GetCurChar, ttSymbol, FMsgPos);
-      Inc(FMsgPos);
-      ParseMethodName;
-      ParseParameters;
-    End;
+  if GetCurChar = '.' then
+  begin
+    AddToken(GetCurChar, ttSymbol, FMsgPos);
+    Inc(FMsgPos);
+    ParseMethodName;
+    ParseParameters;
+  end;
   ParseRemainingCharacters;
-End;
+end;
 
-End.
+end.
+

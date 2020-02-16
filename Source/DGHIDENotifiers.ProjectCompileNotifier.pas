@@ -1,17 +1,17 @@
 (**
-  
+
   This module contains a class that implements the IOTAProjectCompileNotifier interface for capturing
   compile information on each compile operation.
 
   @Author  David Hoyle
   @Version 1.0
   @Date    05 Jan 2020
-  
+
   @license
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -28,24 +28,24 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.ProjectCompileNotifier;
+unit DGHIDENotifiers.ProjectCompileNotifier;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI,
   DGHIDENotifiers.Types,
   DGHIDENotifiers.Interfaces;
 
-Type
+type
   (** A class to implement the IOTAProjectCompileNotifier interface. **)
-  TDNProjectCompileNotifier = Class(TDGHNotifierObject, IOTAProjectCompileNotifier)
-  Strict Private
+  TDNProjectCompileNotifier = class(TDGHNotifierObject, IOTAProjectCompileNotifier)
+  strict private
     FModuleNotiferList: IDINModuleNotifierList;
-  Strict Protected
+  strict protected
     // IOTAProjectCompileNotification
-    Procedure AfterCompile(Var CompileInfo: TOTAProjectCompileInfo);
-    Procedure BeforeCompile(Var CompileInfo: TOTAProjectCompileInfo);
+    procedure AfterCompile(var CompileInfo: TOTAProjectCompileInfo);
+    procedure BeforeCompile(var CompileInfo: TOTAProjectCompileInfo);
     // General Properties
     (**
       A property the exposes to this class and descendants an interface for notifying the module notifier
@@ -54,25 +54,20 @@ Type
       @postcon Returns the IDINRenameModule reference.
       @return  an IDINModuleNotifierList
     **)
-    Property RenameModule : IDINModuleNotifierList Read FModuleNotiferList;
-  Public
-  End;
+    property RenameModule: IDINModuleNotifierList read FModuleNotiferList;
+  public
+  end;
 
-Implementation
+implementation
 
-Uses
+uses
   SysUtils;
 
-Const
+const
   (** An array constant of strings for each compiel mode. **)
-  astrCompileMode :Array[TOTACompileMode] Of String = (
-    'cmOTAMake',
-    'cmOTABuild',
-    'cmOTACheck',
-    'cmOTAMakeUnit'
-  );
+  astrCompileMode: array[TOTACompileMode] of string = ('cmOTAMake', 'cmOTABuild', 'cmOTACheck', 'cmOTAMakeUnit');
   (** An array constant of strings for false and true. **)
-  astrBoolean : Array[False..True] Of String = ('False', 'True');
+  astrBoolean: array[False..True] of string = ('False', 'True');
 
 { TDNProjectCompileNotifier }
 
@@ -86,23 +81,12 @@ Const
   @param   CompileInfo as a TOTAProjectCompileInfo as a reference
 
 **)
-Procedure TDNProjectCompileNotifier.AfterCompile(Var CompileInfo: TOTAProjectCompileInfo);
-
-ResourceString
+procedure TDNProjectCompileNotifier.AfterCompile(var CompileInfo: TOTAProjectCompileInfo);
+resourcestring
   strAfterCompile = '.AfterCompile = Mode: %s, Configuration: %s, Platform: %s, Result: %s';
-
-Begin
-  DoNotification(
-    Format(
-    strAfterCompile,
-      [
-        astrCompileMode[CompileInfo.Mode],
-        CompileInfo.Configuration,
-        CompileInfo.Platform,
-        astrBoolean[CompileInfo.Result]
-      ])
-  );
-End;
+begin
+  DoNotification(Format(strAfterCompile, [astrCompileMode[CompileInfo.Mode], CompileInfo.Configuration, CompileInfo.platform, astrBoolean[CompileInfo.Result]]));
+end;
 
 (**
 
@@ -115,22 +99,12 @@ End;
   @param   CompileInfo as a TOTAProjectCompileInfo as a reference
 
 **)
-Procedure TDNProjectCompileNotifier.BeforeCompile(Var CompileInfo: TOTAProjectCompileInfo);
-
-ResourceString
+procedure TDNProjectCompileNotifier.BeforeCompile(var CompileInfo: TOTAProjectCompileInfo);
+resourcestring
   strBeforeCompile = '.BeforeCompile = Mode: %s, Configuration: %s, Platform: %s, Result: %s';
+begin
+  DoNotification(Format(strBeforeCompile, [astrCompileMode[CompileInfo.Mode], CompileInfo.Configuration, CompileInfo.platform, astrBoolean[CompileInfo.Result]]));
+end;
 
-Begin
-  DoNotification(
-    Format(
-    strBeforeCompile,
-      [
-        astrCompileMode[CompileInfo.Mode],
-        CompileInfo.Configuration,
-        CompileInfo.Platform,
-        astrBoolean[CompileInfo.Result]
-      ])
-  );
-End;
+end.
 
-End.

@@ -10,7 +10,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -27,58 +27,58 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.ModuleNotifierCollection;
+unit DGHIDENotifiers.ModuleNotifierCollection;
 
-Interface
+interface
 
-Uses
+uses
   Generics.Collections,
   DGHIDENotifiers.Interfaces;
 
 {$INCLUDE 'CompilerDefinitions.inc'}
 
-Type
+type
   (** A class to manage module notifiers. **)
-  TDINModuleNotifierList = Class(TInterfacedObject, IDINModuleNotifierList)
-  Strict Private
-    Type
+  TDINModuleNotifierList = class(TInterfacedObject, IDINModuleNotifierList)
+  strict private
+    type
       (** A record to describe the properties of a Module, project or Form notifier. @nohints **)
-      TModuleNotifierRec = Record
-      Strict Private
-        FFileName      : String;
-        FNotifierIndex : Integer;
-      Public
-        Constructor Create(Const strFileName : String; Const iIndex : Integer);
+      TModuleNotifierRec = record
+      strict private
+        FFileName: string;
+        FNotifierIndex: Integer;
+      public
+        constructor Create(const strFileName: string; const iIndex: Integer);
         (**
           A property to return the filename for the notifier record.
           @precon  None.
           @postcon Returns the filename associated with the notifier.
           @return  a String
         **)
-        Property FileName : String Read FFileName Write FFileName;
+        property FileName: string read FFileName write FFileName;
         (**
           A property to return the notifier index for the notifier record.
           @precon  None.
           @postcon Returns the notifier index associated with the notifier.
           @return  a Integer
         **)
-        Property NotifierIndex : Integer Read FNotifierIndex;
-      End;
-  Strict Private
-    FModuleNotifierList : TList<TModuleNotifierRec>;
-  {$IFDEF D2010} Strict {$ENDIF} Protected
-    Procedure Add(Const strFileName : String; Const iIndex : Integer);
-    Function  Remove(Const strFileName: String): Integer;
-    Procedure Rename(Const strOldFileName: String; Const strNewFileName: String);
-    Function Find(Const strFileName : String; Var iIndex : Integer) : Boolean;
-  Public
-    Constructor Create;
-    Destructor Destroy; Override;
-  End;
+        property NotifierIndex: Integer read FNotifierIndex;
+      end;
+  strict private
+    FModuleNotifierList: TList<TModuleNotifierRec>;
+  {$IFDEF D2010}   strict {$ENDIF} protected
+    procedure Add(const strFileName: string; const iIndex: Integer);
+    function Remove(const strFileName: string): Integer;
+    procedure Rename(const strOldFileName: string; const strNewFileName: string);
+    function Find(const strFileName: string; var iIndex: Integer): Boolean;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
 
-Implementation
+implementation
 
-Uses
+uses
   {$IFDEF DEBUG}
   CodeSiteLogging,
   {$ENDIF}
@@ -96,14 +96,12 @@ Uses
   @param   iIndex        as an Integer as a constant
 
 **)
-Constructor TDINModuleNotifierList.TModuleNotifierRec.Create(Const strFileName: String;
-  Const iIndex: Integer {: @ debug Const eNotifierType: TDGHIDENotification } );
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod('TDINModuleNotifierList.TModuleNotifierRec.Create', tmoTiming);{$ENDIF}
+constructor TDINModuleNotifierList.TModuleNotifierRec.Create(const strFileName: string; const iIndex: Integer {: @ debug Const eNotifierType: TDGHIDENotification } );
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod('TDINModuleNotifierList.TModuleNotifierRec.Create', tmoTiming); {$ENDIF}
   FFileName := strFileName;
   FNotifierIndex := iIndex;
-End;
+end;
 
 (**
 
@@ -116,12 +114,11 @@ End;
   @param   iIndex      as an Integer as a constant
 
 **)
-Procedure TDINModuleNotifierList.Add(Const strFileName: String; Const iIndex: Integer);
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod(Self, 'Add', tmoTiming);{$ENDIF}
+procedure TDINModuleNotifierList.Add(const strFileName: string; const iIndex: Integer);
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod(Self, 'Add', tmoTiming); {$ENDIF}
   FModuleNotifierList.Add(TModuleNotifierRec.Create(strFileName, iIndex));
-End;
+end;
 
 (**
 
@@ -131,12 +128,11 @@ End;
   @postcon Initialises the list.
 
 **)
-Constructor TDINModuleNotifierList.Create;
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod(Self, 'Create', tmoTiming);{$ENDIF}
+constructor TDINModuleNotifierList.Create;
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod(Self, 'Create', tmoTiming); {$ENDIF}
   FModuleNotifierList := TList<TModuleNotifierRec>.Create;
-End;
+end;
 
 (**
 
@@ -146,28 +142,25 @@ End;
   @postcon Removes the records from the collection and checks for orphans.
 
 **)
-Destructor TDINModuleNotifierList.Destroy;
-
-ResourceString
+destructor TDINModuleNotifierList.Destroy;
+resourcestring
   strDestroyOrphanedModuleNotifier = 'Destroy(Orphaned Module Notifier)';
-
-Var
-  iModule : Integer;
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod(Self, 'Destroy', tmoTiming);{$ENDIF}
-  For iModule := FModuleNotifierList.Count - 1 DownTo 0 Do
-    Begin
+var
+  iModule: Integer;
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod(Self, 'Destroy', tmoTiming); {$ENDIF}
+  for iModule := FModuleNotifierList.Count - 1 downto 0 do
+  begin
       {$IFDEF DEBUG}
-      CodeSite.Send(csmWarning, strDestroyOrphanedModuleNotifier, FModuleNotifierList[iModule].FileName);
+    CodeSite.Send(csmWarning, strDestroyOrphanedModuleNotifier, FModuleNotifierList[iModule].FileName);
       {$ENDIF}
-      FModuleNotifierList.Delete(iModule);
+    FModuleNotifierList.Delete(iModule);
       //: @note Cannot remove any left over notifiers here as the module
       //:       is most likely closed at ths point however there should not be any anyway.
-    End;
+  end;
   FModuleNotifierList.Free;
-  Inherited Destroy;
-End;
+  inherited Destroy;
+end;
 
 (**
 
@@ -182,27 +175,25 @@ End;
   @return  a Boolean
 
 **)
-Function TDINModuleNotifierList.Find(Const strFileName: String; Var iIndex: Integer): Boolean;
-
-Var
-  iModNotIdx : Integer;
+function TDINModuleNotifierList.Find(const strFileName: string; var iIndex: Integer): Boolean;
+var
+  iModNotIdx: Integer;
   R: TModuleNotifierRec;
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod(Self, 'Find', tmoTiming);{$ENDIF}
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod(Self, 'Find', tmoTiming); {$ENDIF}
   Result := False;
   iIndex := -1;
-  For iModNotIdx := 0 To FModuleNotifierList.Count - 1 Do
-    Begin
-      R := FModuleNotifierList.Items[iModNotIdx];
-      If CompareText(R.FileName, strFileName) = 0 Then
-        Begin
-          iIndex := iModNotIdx;
-          Result := True;
-          Break;
-        End;
-    End;
-End;
+  for iModNotIdx := 0 to FModuleNotifierList.Count - 1 do
+  begin
+    R := FModuleNotifierList.Items[iModNotIdx];
+    if CompareText(R.FileName, strFileName) = 0 then
+    begin
+      iIndex := iModNotIdx;
+      Result := True;
+      Break;
+    end;
+  end;
+end;
 
 (**
 
@@ -215,22 +206,20 @@ End;
   @return  an Integer
 
 **)
-Function TDINModuleNotifierList.Remove(Const strFileName: String): Integer;
-
-Var
+function TDINModuleNotifierList.Remove(const strFileName: string): Integer;
+var
   iModuleIndex: Integer;
-  R : TModuleNotifierRec;
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod(Self, 'Remove', tmoTiming);{$ENDIF}
+  R: TModuleNotifierRec;
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod(Self, 'Remove', tmoTiming); {$ENDIF}
   Result := -1;
-  If Find(strFileName, iModuleIndex) Then
-    Begin
-      R := FModuleNotifierList[iModuleIndex];
-      Result := R.NotifierIndex;
-      FModuleNotifierList.Delete(iModuleIndex);
-    End;
-End;
+  if Find(strFileName, iModuleIndex) then
+  begin
+    R := FModuleNotifierList[iModuleIndex];
+    Result := R.NotifierIndex;
+    FModuleNotifierList.Delete(iModuleIndex);
+  end;
+end;
 
 (**
 
@@ -244,21 +233,19 @@ End;
   @param   strNewFileName as a String as a constant
 
 **)
-Procedure TDINModuleNotifierList.Rename(Const strOldFileName, strNewFileName: String);
+procedure TDINModuleNotifierList.Rename(const strOldFileName, strNewFileName: string);
+var
+  iIndex: Integer;
+  R: TModuleNotifierRec;
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod(Self, 'Rename', tmoTiming); {$ENDIF}
+  if Find(strOldFileName, iIndex) then
+  begin
+    R := FModuleNotifierList[iIndex];
+    R.FileName := strNewFileName;
+    FModuleNotifierList[iIndex] := R;
+  end;
+end;
 
-Var
-  iIndex : Integer;
-  R : TModuleNotifierRec;
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod(Self, 'Rename', tmoTiming);{$ENDIF}
-  If Find(strOldFileName, iIndex) Then
-    Begin
-      R := FModuleNotifierList[iIndex];
-      R.FileName := strNewFileName;
-      FModuleNotifierList[iIndex] := R;
-    End;
-End;
-
-End.
+end.
 

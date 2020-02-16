@@ -11,7 +11,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -28,35 +28,34 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.ModuleNotifier;
+unit DGHIDENotifiers.ModuleNotifier;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI,
   DGHIDENotifiers.Interfaces,
   DGHIDENotifiers.Types;
 
 {$INCLUDE 'CompilerDefinitions.inc'}
 
-Type
+type
   (** A class to implements the IOTAModuleNotitifer interfaces. **)
-  TDNModuleNotifier = Class(TDGHNotifierObject, IOTAModuleNotifier, IOTAModuleNotifier80,
-    IOTAModuleNotifier90)
-  Strict Private
+  TDNModuleNotifier = class(TDGHNotifierObject, IOTAModuleNotifier, IOTAModuleNotifier80, IOTAModuleNotifier90)
+  strict private
     FModuleRenameEvent: TDNModuleRenameEvent;
-  {$IFDEF D2010} Strict {$ENDIF} Protected
+  {$IFDEF D2010}   strict {$ENDIF} protected
     // IOTAModuleNotifier
-    Function CheckOverwrite: Boolean;
-    Procedure ModuleRenamed(Const NewName: String);
+    function CheckOverwrite: Boolean;
+    procedure ModuleRenamed(const NewName: string);
     // IOTAModuleNotifier80
-    Function AllowSave: Boolean;
-    Function GetOverwriteFileNameCount: Integer;
-    Function GetOverwriteFileName(Index: Integer): String;
-    Procedure SetSaveFileName(Const FileName: String);
+    function AllowSave: Boolean;
+    function GetOverwriteFileNameCount: Integer;
+    function GetOverwriteFileName(Index: Integer): string;
+    procedure SetSaveFileName(const FileName: string);
     // IOTAModuleNotifier90
-    Procedure BeforeRename(Const OldFileName, NewFileName: String);
-    Procedure AfterRename(Const OldFileName, NewFileName: String);
+    procedure BeforeRename(const OldFileName, NewFileName: string);
+    procedure AfterRename(const OldFileName, NewFileName: string);
     // General Properties
     (**
       A property the exposes to this class and descendants an interface for notifying the module notifier
@@ -65,18 +64,14 @@ Type
       @postcon Returns the IDINRenameModule reference.
       @return  a TDNModuleRenameEvent
     **)
-    Property ModuleRenameEvent : TDNModuleRenameEvent Read FModuleRenameEvent;
-  Public
-    Constructor Create(
-      Const strNotifier, strFileName: String;
-      Const iNotification : TDGHIDENotification;
-      Const ModuleRenameEvent: TDNModuleRenameEvent
-    ); Reintroduce; Overload;
-  End;
+    property ModuleRenameEvent: TDNModuleRenameEvent read FModuleRenameEvent;
+  public
+    constructor Create(const strNotifier, strFileName: string; const iNotification: TDGHIDENotification; const ModuleRenameEvent: TDNModuleRenameEvent); reintroduce; overload;
+  end;
 
-Implementation
+implementation
 
-Uses
+uses
   {$IFDEF DEBUG}
   CodeSiteLogging,
   {$ENDIF}
@@ -94,25 +89,15 @@ Uses
   @param   NewFileName as a String as a constant
 
 **)
-Procedure TDNModuleNotifier.AfterRename(Const OldFileName, NewFileName: String);
-
-ResourceString
+procedure TDNModuleNotifier.AfterRename(const OldFileName, NewFileName: string);
+resourcestring
   strAfterRename = '90(%s).AfterRename = OldFileName: %s, NewFileName: %s';
-
-Begin
-  DoNotification(
-    Format(
-    strAfterRename,
-      [
-        ExtractFileName(FileName),
-        ExtractFileName(OldFileName),
-        ExtractFileName(NewFileName)
-      ])
-  );
+begin
+  DoNotification(Format(strAfterRename, [ExtractFileName(FileName), ExtractFileName(OldFileName), ExtractFileName(NewFileName)]));
   FileName := NewFileName;
-  If Assigned(ModuleRenameEvent) Then
+  if Assigned(ModuleRenameEvent) then
     ModuleRenameEvent(OldFileName, NewFileName);
-End;
+end;
 
 (**
 
@@ -126,15 +111,13 @@ End;
   @return  a Boolean
 
 **)
-Function TDNModuleNotifier.AllowSave: Boolean;
-
-ResourceString
+function TDNModuleNotifier.AllowSave: Boolean;
+resourcestring
   strAllowSave = '80(%s).AllowSave = Result: True';
-
-Begin
+begin
   Result := True;
   DoNotification(Format(strAllowSave, [ExtractFileName(FileName)]));
-End;
+end;
 
 (**
 
@@ -148,22 +131,12 @@ End;
   @param   NewFileName as a String as a constant
 
 **)
-Procedure TDNModuleNotifier.BeforeRename(Const OldFileName, NewFileName: String);
-
-ResourceString
+procedure TDNModuleNotifier.BeforeRename(const OldFileName, NewFileName: string);
+resourcestring
   strBeforeRename = '90(%s).BeforeRename = OldFileName: %s, NewFileName: %s';
-
-Begin
-  DoNotification(
-    Format(
-    strBeforeRename,
-      [
-        ExtractFileName(FileName),
-        ExtractFileName(OldFileName),
-        ExtractFileName(NewFileName)
-      ])
-  );
-End;
+begin
+  DoNotification(Format(strBeforeRename, [ExtractFileName(FileName), ExtractFileName(OldFileName), ExtractFileName(NewFileName)]));
+end;
 
 (**
 
@@ -176,15 +149,13 @@ End;
   @return  a Boolean
 
 **)
-Function TDNModuleNotifier.CheckOverwrite: Boolean;
-
-ResourceString
+function TDNModuleNotifier.CheckOverwrite: Boolean;
+resourcestring
   strCheckOverwrite = '(%s).CheckOverwrite = Result: True';
-
-Begin
+begin
   Result := True;
   DoNotification(Format(strCheckOverwrite, [ExtractFileName(FileName)]));
-End;
+end;
 
 (**
 
@@ -199,16 +170,12 @@ End;
   @param   ModuleRenameEvent as a TDNModuleRenameEvent as a constant
 
 **)
-Constructor TDNModuleNotifier.Create(
-  Const strNotifier, strFileName: String;
-  Const iNotification: TDGHIDENotification;
-  Const ModuleRenameEvent: TDNModuleRenameEvent);
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod(Self, 'Create', tmoTiming);{$ENDIF}
-  Inherited Create(strNotifier, strFileName, iNotification);
+constructor TDNModuleNotifier.Create(const strNotifier, strFileName: string; const iNotification: TDGHIDENotification; const ModuleRenameEvent: TDNModuleRenameEvent);
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod(Self, 'Create', tmoTiming); {$ENDIF}
+  inherited Create(strNotifier, strFileName, iNotification);
   FModuleRenameEvent := ModuleRenameEvent;
-End;
+end;
 
 (**
 
@@ -219,21 +186,18 @@ End;
   @postcon Returns an empty string but isn
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Index as an Integer
   @return  a String
 
 **)
-Function TDNModuleNotifier.GetOverwriteFileName(Index: Integer): String;
-
-ResourceString
+function TDNModuleNotifier.GetOverwriteFileName(Index: Integer): string;
+resourcestring
   strGetOverwriteFileName = '(%s).GetOverwriteFileName = Index: %d, Result: ''''';
-
-Begin
+begin
   Result := '';
-  DoNotification(Format(strGetOverwriteFileName, [
-    ExtractFileName(FileName), Index]));
-End;
+  DoNotification(Format(strGetOverwriteFileName, [ExtractFileName(FileName), Index]));
+end;
 
 (**
 
@@ -247,15 +211,13 @@ End;
   @return  an Integer
 
 **)
-Function TDNModuleNotifier.GetOverwriteFileNameCount: Integer;
-
-ResourceString
+function TDNModuleNotifier.GetOverwriteFileNameCount: Integer;
+resourcestring
   strGetOverwriteFileName = '(%s).GetOverwriteFileNameCount = Result: 0';
-
-Begin
+begin
   Result := 0;
   DoNotification(Format(strGetOverwriteFileName, [ExtractFileName(FileName)]));
-End;
+end;
 
 (**
 
@@ -267,22 +229,13 @@ End;
   @param   NewName as a String as a constant
 
 **)
-Procedure TDNModuleNotifier.ModuleRenamed(Const NewName: String);
-
-ResourceString
+procedure TDNModuleNotifier.ModuleRenamed(const NewName: string);
+resourcestring
   strModuleRenamed = '80(%s).ModuleRenamed = NewName: %s';
-
-Begin
-  DoNotification(
-    Format(
-    strModuleRenamed,
-      [
-        ExtractFileName(FileName),
-        ExtractFileName(NewName)
-      ])
-  );
+begin
+  DoNotification(Format(strModuleRenamed, [ExtractFileName(FileName), ExtractFileName(NewName)]));
   FileName := NewName;
-End;
+end;
 
 (**
 
@@ -295,21 +248,12 @@ End;
   @param   FileName as a String as a constant
 
 **)
-Procedure TDNModuleNotifier.SetSaveFileName(Const FileName: String);
-
-ResourceString
+procedure TDNModuleNotifier.SetSaveFileName(const FileName: string);
+resourcestring
   strSetSaveFileName = '80(%s).SetSaveFileName = FileName: %s';
+begin
+  DoNotification(Format(strSetSaveFileName, [ExtractFileName(FileName), ExtractFileName(FileName)]));
+end;
 
-Begin
-  DoNotification(
-    Format(
-    strSetSaveFileName,
-      [
-        ExtractFileName(FileName),
-        ExtractFileName(FileName)
-      ])
-  );
-End;
-
-End.
+end.
 

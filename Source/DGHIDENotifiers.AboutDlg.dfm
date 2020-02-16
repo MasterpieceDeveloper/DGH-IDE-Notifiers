@@ -18,17 +18,16 @@ object frmDINAboutDlg: TfrmDINAboutDlg
   object lblBuildDate: TLabel
     AlignWithMargins = True
     Left = 3
-    Top = 82
+    Top = 73
     Width = 499
     Height = 16
     Align = alTop
     Caption = 'lblBuildDate'
-    ExplicitWidth = 66
   end
   object lblAuthor: TLabel
     AlignWithMargins = True
     Left = 3
-    Top = 60
+    Top = 54
     Width = 499
     Height = 16
     Align = alTop
@@ -39,12 +38,11 @@ object frmDINAboutDlg: TfrmDINAboutDlg
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
-    ExplicitWidth = 229
   end
   object lblBuild: TLabel
     AlignWithMargins = True
     Left = 3
-    Top = 38
+    Top = 35
     Width = 499
     Height = 16
     Align = alTop
@@ -55,7 +53,6 @@ object frmDINAboutDlg: TfrmDINAboutDlg
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
-    ExplicitWidth = 40
   end
   object lblExpertMgr: TLabel
     AlignWithMargins = True
@@ -72,7 +69,6 @@ object frmDINAboutDlg: TfrmDINAboutDlg
     Font.Style = [fsBold]
     ParentFont = False
     Transparent = True
-    ExplicitWidth = 216
   end
   object pnlButtons: TPanel
     Left = 0
@@ -103,9 +99,9 @@ object frmDINAboutDlg: TfrmDINAboutDlg
   object lblInformation: TMemo
     AlignWithMargins = True
     Left = 3
-    Top = 104
+    Top = 92
     Width = 499
-    Height = 306
+    Height = 318
     Align = alClient
     Lines.Strings = (
       'DGH IDE Notifiers'

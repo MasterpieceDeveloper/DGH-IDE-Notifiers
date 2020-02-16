@@ -12,7 +12,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -29,42 +29,40 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.DebuggerNotifier;
+unit DGHIDENotifiers.DebuggerNotifier;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI,
   DGHIDENotifiers.Types;
 
-Type
+type
   (** This class implements a notifier for capturing events associated with the debugger. **)
-  TDGHNotificationsDebuggerNotifier = Class(TDGHNotifierObject, IOTANotifier,
-    IOTADebuggerNotifier, IOTADebuggerNotifier90, IOTADebuggerNotifier100,
-    IOTADebuggerNotifier110)
-  Strict Private
-  Strict Protected
-  Public
+  TDGHNotificationsDebuggerNotifier = class(TDGHNotifierObject, IOTANotifier, IOTADebuggerNotifier, IOTADebuggerNotifier90, IOTADebuggerNotifier100, IOTADebuggerNotifier110)
+  strict private
+  strict protected
+  public
     // IOTADebuggerNotifier
-    Procedure ProcessCreated(Const Process: IOTAProcess);
-    Procedure ProcessDestroyed(Const Process: IOTAProcess);
-    Procedure BreakpointAdded(Const Breakpoint: IOTABreakpoint);
-    Procedure BreakpointDeleted(Const Breakpoint: IOTABreakpoint);
+    procedure ProcessCreated(const Process: IOTAProcess);
+    procedure ProcessDestroyed(const Process: IOTAProcess);
+    procedure BreakpointAdded(const Breakpoint: IOTABreakpoint);
+    procedure BreakpointDeleted(const Breakpoint: IOTABreakpoint);
     // IOTADebuggerNotifier90
-    Procedure BreakpointChanged(Const Breakpoint: IOTABreakpoint);
-    Procedure CurrentProcessChanged(Const Process: IOTAProcess);
-    Procedure ProcessStateChanged(Const Process: IOTAProcess);
-    Function  BeforeProgramLaunch(Const Project: IOTAProject): Boolean;
-    Procedure ProcessMemoryChanged; Overload;
+    procedure BreakpointChanged(const Breakpoint: IOTABreakpoint);
+    procedure CurrentProcessChanged(const Process: IOTAProcess);
+    procedure ProcessStateChanged(const Process: IOTAProcess);
+    function BeforeProgramLaunch(const Project: IOTAProject): Boolean;
+    procedure ProcessMemoryChanged; overload;
     // IOTADebuggerNotifier100
-    Procedure DebuggerOptionsChanged;
+    procedure DebuggerOptionsChanged;
     // IOTADebuggerNotifier110
-    Procedure ProcessMemoryChanged(EIPChanged: Boolean); Overload;
-  End;
+    procedure ProcessMemoryChanged(EIPChanged: Boolean); overload;
+  end;
 
-Implementation
+implementation
 
-Uses
+uses
   SysUtils,
   DGHIDENotifiers.Common;
 
@@ -76,21 +74,19 @@ Uses
   @postcon The breakpoint filename is returned.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Breakpoint as an IOTABreakpoint
   @return  a String
 
 **)
-Function GetBreakpointFileName(Breakpoint : IOTABreakpoint) : String;
-
-ResourceString
+function GetBreakpointFileName(Breakpoint: IOTABreakpoint): string;
+resourcestring
   strNoBreakpoint = '(no breakpoint)';
-
-Begin
+begin
   Result := strNoBreakpoint;
-  If Breakpoint <> Nil Then
+  if Breakpoint <> Nil then
     Result := ExtractFileName(Breakpoint.FileName);
-End;
+end;
 
 (**
 
@@ -100,18 +96,17 @@ End;
   @postcon The breakpoint line number is returned.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Breakpoint as an IOTABreakpoint
   @return  an Integer
 
 **)
-Function GetBreakpointLineNumber(Breakpoint : IOTABreakpoint) : Integer;
-
-Begin
+function GetBreakpointLineNumber(Breakpoint: IOTABreakpoint): Integer;
+begin
   Result := 0;
-  If Breakpoint <> Nil Then
+  if Breakpoint <> Nil then
     Result := Breakpoint.LineNumber;
-End;
+end;
 
 (**
 
@@ -121,21 +116,19 @@ End;
   @postcon the executable filename is returned.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Process as an IOTAProcess
   @return  a String
 
 **)
-Function GetProcessEXEName(Process : IOTAProcess) : String;
-
-ResourceString
+function GetProcessEXEName(Process: IOTAProcess): string;
+resourcestring
   strNoProcess = '(no process)';
-
-Begin
+begin
   Result := strNoProcess;
-  If Process <> Nil Then
+  if Process <> Nil then
     Result := ExtractFileName(Process.ExeName);
-End;
+end;
 
 { TDGHNotificationsDebuggerNotifier }
 
@@ -150,17 +143,13 @@ End;
   @return  a Boolean
 
 **)
-Function TDGHNotificationsDebuggerNotifier.BeforeProgramLaunch(
-  Const Project: IOTAProject): Boolean;
-
-ResourceString
+function TDGHNotificationsDebuggerNotifier.BeforeProgramLaunch(const Project: IOTAProject): Boolean;
+resourcestring
   strBeforeProgramLaunch = '90.BeforeProgramLaunch = Project: %s, Result: True';
-
-Begin
+begin
   Result := True;
-  DoNotification(Format(
-    strBeforeProgramLaunch, [GetProjectFileName(Project)]));
-End;
+  DoNotification(Format(strBeforeProgramLaunch, [GetProjectFileName(Project)]));
+end;
 
 (**
 
@@ -172,17 +161,12 @@ End;
   @param   Breakpoint as an IOTABreakpoint as a constant
 
 **)
-Procedure TDGHNotificationsDebuggerNotifier.BreakpointAdded(Const Breakpoint : IOTABreakpoint);
-
-ResourceString
+procedure TDGHNotificationsDebuggerNotifier.BreakpointAdded(const Breakpoint: IOTABreakpoint);
+resourcestring
   strBreakpointAdded = '.BreakpointAdded = Breakpoint: %s @ %d';
-
-Begin
-  DoNotification(
-    Format(strBreakpointAdded, [GetBreakpointFileName(Breakpoint),
-      GetBreakPointLineNumber(Breakpoint)])
-  );
-End;
+begin
+  DoNotification(Format(strBreakpointAdded, [GetBreakpointFileName(Breakpoint), GetBreakPointLineNumber(Breakpoint)]));
+end;
 
 (**
 
@@ -194,17 +178,12 @@ End;
   @param   Breakpoint as an IOTABreakpoint as a constant
 
 **)
-Procedure TDGHNotificationsDebuggerNotifier.BreakpointChanged(Const Breakpoint : IOTABreakpoint);
-
-ResourceString
+procedure TDGHNotificationsDebuggerNotifier.BreakpointChanged(const Breakpoint: IOTABreakpoint);
+resourcestring
   strBreakpointChanged = '.BreakpointChanged = Breakpoint: %s @ %d';
-
-Begin
-  DoNotification(
-    Format(strBreakpointChanged, [GetBreakpointFileName(Breakpoint),
-      GetBreakPointLineNumber(Breakpoint)])
-  );
-End;
+begin
+  DoNotification(Format(strBreakpointChanged, [GetBreakpointFileName(Breakpoint), GetBreakPointLineNumber(Breakpoint)]));
+end;
 
 (**
 
@@ -216,17 +195,12 @@ End;
   @param   Breakpoint as an IOTABreakpoint as a constant
 
 **)
-Procedure TDGHNotificationsDebuggerNotifier.BreakpointDeleted(Const Breakpoint : IOTABreakpoint);
-
-ResourceString
+procedure TDGHNotificationsDebuggerNotifier.BreakpointDeleted(const Breakpoint: IOTABreakpoint);
+resourcestring
   strBreakpointDeleted = '.BreakpointDeleted = Breakpoint: %s @ %d';
-
-Begin
-  DoNotification(
-    Format(strBreakpointDeleted, [GetBreakpointFileName(Breakpoint),
-      GetBreakPointLineNumber(Breakpoint)])
-  );
-End;
+begin
+  DoNotification(Format(strBreakpointDeleted, [GetBreakpointFileName(Breakpoint), GetBreakPointLineNumber(Breakpoint)]));
+end;
 
 (**
 
@@ -238,19 +212,12 @@ End;
   @param   Process as an IOTAProcess as a constant
 
 **)
-Procedure TDGHNotificationsDebuggerNotifier.CurrentProcessChanged(Const Process: IOTAProcess);
-
-ResourceString
+procedure TDGHNotificationsDebuggerNotifier.CurrentProcessChanged(const Process: IOTAProcess);
+resourcestring
   strCurrentProcessChanged = '90.CurrentProcessChanged = Process: %s';
-
-Begin
-  DoNotification(
-    Format(
-      strCurrentProcessChanged,
-      [GetProcessExeName(Process)]
-    )
-  );
-End;
+begin
+  DoNotification(Format(strCurrentProcessChanged, [GetProcessExeName(Process)]));
+end;
 
 (**
 
@@ -260,14 +227,12 @@ End;
   @postcon None.
 
 **)
-Procedure TDGHNotificationsDebuggerNotifier.DebuggerOptionsChanged;
-
-ResourceString
+procedure TDGHNotificationsDebuggerNotifier.DebuggerOptionsChanged;
+resourcestring
   strDebuggerOptionsChanged = '100.DebuggerOptionsChanged';
-
-Begin
+begin
   DoNotification(strDebuggerOptionsChanged);
-End;
+end;
 
 (**
 
@@ -279,19 +244,12 @@ End;
   @param   Process as an IOTAProcess as a constant
 
 **)
-Procedure TDGHNotificationsDebuggerNotifier.ProcessCreated(Const Process: IOTAProcess);
-
-ResourceString
+procedure TDGHNotificationsDebuggerNotifier.ProcessCreated(const Process: IOTAProcess);
+resourcestring
   strProcessCreated = '90.ProcessCreated = Process: %s';
-
-Begin
-  DoNotification(
-    Format(
-      strProcessCreated,
-      [GetProcessExeName(Process)]
-    )
-  );
-End;
+begin
+  DoNotification(Format(strProcessCreated, [GetProcessExeName(Process)]));
+end;
 
 (**
 
@@ -303,19 +261,12 @@ End;
   @param   Process as an IOTAProcess as a constant
 
 **)
-Procedure TDGHNotificationsDebuggerNotifier.ProcessDestroyed(Const Process: IOTAProcess);
-
-ResourceString
+procedure TDGHNotificationsDebuggerNotifier.ProcessDestroyed(const Process: IOTAProcess);
+resourcestring
   strProcessDestroyed = '90.ProcessDestroyed = Process: %s';
-
-Begin
-  DoNotification(
-    Format(
-      strProcessDestroyed,
-      [GetProcessExeName(Process)]
-    )
-  );
-End;
+begin
+  DoNotification(Format(strProcessDestroyed, [GetProcessExeName(Process)]));
+end;
 
 (**
 
@@ -326,14 +277,12 @@ End;
   @postcon None.
 
 **)
-Procedure TDGHNotificationsDebuggerNotifier.ProcessMemoryChanged;
-
-ResourceString
+procedure TDGHNotificationsDebuggerNotifier.ProcessMemoryChanged;
+resourcestring
   strProcessMemoryChanged = '90.ProcessMemoryChanged';
-
-Begin
+begin
   DoNotification(strProcessMemoryChanged);
-End;
+end;
 
 (**
 
@@ -345,19 +294,16 @@ End;
            think Set Next Statement).
 
   @nocheck MissingCONSTInParam
-  
+
   @param   EIPChanged as a Boolean
 
 **)
-Procedure TDGHNotificationsDebuggerNotifier.ProcessMemoryChanged(EIPChanged: Boolean);
-
-ResourceString
+procedure TDGHNotificationsDebuggerNotifier.ProcessMemoryChanged(EIPChanged: Boolean);
+resourcestring
   strDebuggerOptionsChanged = '110.DebuggerOptionsChanged';
-
-Begin
-  DoNotification(Format(strDebuggerOptionsChanged,
-    [strBoolean[EIPChanged]]));
-End;
+begin
+  DoNotification(Format(strDebuggerOptionsChanged, [strBoolean[EIPChanged]]));
+end;
 
 (**
 
@@ -369,18 +315,12 @@ End;
   @param   Process as an IOTAProcess as a constant
 
 **)
-Procedure TDGHNotificationsDebuggerNotifier.ProcessStateChanged(Const Process: IOTAProcess);
-
-ResourceString
+procedure TDGHNotificationsDebuggerNotifier.ProcessStateChanged(const Process: IOTAProcess);
+resourcestring
   strProcessStateChanged = '90.ProcessStateChanged = Process: %s';
+begin
+  DoNotification(Format(strProcessStateChanged, [GetProcessExeName(Process)]));
+end;
 
-Begin
-  DoNotification(
-    Format(
-      strProcessStateChanged,
-      [GetProcessExeName(Process)]
-    )
-  );
-End;
+end.
 
-End.

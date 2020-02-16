@@ -11,7 +11,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -28,18 +28,19 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.Common;
+unit DGHIDENotifiers.Common;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI;
 
-  Procedure BuildNumber(var iMajor, iMinor, iBugFix, iBuild : Integer);
-  Function GetProjectFileName(Const Project : IOTAProject) : String;
+procedure BuildNumber(var iMajor, iMinor, iBugFix, iBuild: Integer);
+
+function GetProjectFileName(const Project: IOTAProject): string;
 
 {$IFNDEF _FIXINSIGHT_}
-Resourcestring
+resourcestring
   (** This resource string is used for the bug fix number in the splash screen and about box
       entries. **)
   strRevision = ' abcdefghijklmnopqrstuvwxyz';
@@ -53,14 +54,14 @@ Resourcestring
   strSplashScreenBuild = 'David Hoyle (c) 2020 License GNU GPL3 (Build %d.%d.%d.%d)';
   {$ENDIF}
 
-Const
+const
   (** A constant to define the failed state for a notifier not installed. **)
   iWizardFailState = -1;
 {$ENDIF}
 
-Implementation
+implementation
 
-Uses
+uses
   SysUtils,
   Windows;
 
@@ -77,39 +78,36 @@ Uses
   @param   iBuild  as an Integer as a reference
 
 **)
-Procedure BuildNumber(var iMajor, iMinor, iBugFix, iBuild : Integer);
-
-Const
+procedure BuildNumber(var iMajor, iMinor, iBugFix, iBuild: Integer);
+const
   iWordMask = $FFFF;
   iBitShift = 16;
-
-Var
+var
   VerInfoSize: DWORD;
   VerInfo: Pointer;
   VerValueSize: DWORD;
   VerValue: PVSFixedFileInfo;
   Dummy: DWORD;
-  strBuffer : Array[0..MAX_PATH] Of Char;
-
-Begin
+  strBuffer: array[0..MAX_PATH] of Char;
+begin
   { Build Number }
   GetModuleFilename(hInstance, strBuffer, MAX_PATH);
   VerInfoSize := GetFileVersionInfoSize(strBuffer, Dummy);
-  If VerInfoSize <> 0 Then
-    Begin
-      GetMem(VerInfo, VerInfoSize);
-      Try
-        GetFileVersionInfo(strBuffer, 0, VerInfoSize, VerInfo);
-        VerQueryValue(VerInfo, '\', Pointer(VerValue), VerValueSize);
-        iMajor := VerValue^.dwFileVersionMS shr iBitShift;
-        iMinor := VerValue^.dwFileVersionMS and iWordMask;
-        iBugFix := VerValue^.dwFileVersionLS shr iBitShift;
-        iBuild := VerValue^.dwFileVersionLS and iWordMask;
-      Finally
-        FreeMem(VerInfo, VerInfoSize);
-      End;
-    End;
-End;
+  if VerInfoSize <> 0 then
+  begin
+    GetMem(VerInfo, VerInfoSize);
+    try
+      GetFileVersionInfo(strBuffer, 0, VerInfoSize, VerInfo);
+      VerQueryValue(VerInfo, '\', Pointer(VerValue), VerValueSize);
+      iMajor := VerValue^.dwFileVersionMS shr iBitShift;
+      iMinor := VerValue^.dwFileVersionMS and iWordMask;
+      iBugFix := VerValue^.dwFileVersionLS shr iBitShift;
+      iBuild := VerValue^.dwFileVersionLS and iWordMask;
+    finally
+      FreeMem(VerInfo, VerInfoSize);
+    end;
+  end;
+end;
 
 (**
 
@@ -122,15 +120,14 @@ End;
   @return  a String
 
 **)
-Function GetProjectFileName(Const Project : IOTAProject) : String;
-
-ResourceString
+function GetProjectFileName(const Project: IOTAProject): string;
+resourcestring
   strNoProject = '(no project)';
-
-Begin
+begin
   Result := strNoProject;
-  If Project <> Nil Then
+  if Project <> Nil then
     Result := ExtractFileName(Project.FileName);
-End;
+end;
 
-End.
+end.
+

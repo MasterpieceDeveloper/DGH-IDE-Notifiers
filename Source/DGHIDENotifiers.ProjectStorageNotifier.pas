@@ -11,7 +11,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -28,35 +28,33 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.ProjectStorageNotifier;
+unit DGHIDENotifiers.ProjectStorageNotifier;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI,
   DGHIDENotifiers.Types,
   XMLIntf;
 
 {$INCLUDE 'CompilerDefinitions.inc'}
 
-
-Type
+type
   (** this class implements notifiers to capture Project File Storage events. **)
-  TDGHNotificationsProjectFileStorageNotifier = Class(TDGHNotifierObject,
-    IOTANotifier, IOTAProjectFileStorageNotifier)
-  Strict Private
-  Strict Protected
-  Public
-    Procedure CreatingProject(Const ProjectOrGroup: IOTAModule);
-    Function GetName: String;
-    Procedure ProjectClosing(Const ProjectOrGroup: IOTAModule);
-    Procedure ProjectLoaded(Const ProjectOrGroup: IOTAModule; Const Node: IXMLNode);
-    Procedure ProjectSaving(Const ProjectOrGroup: IOTAModule; Const Node: IXMLNode);
-  End;
+  TDGHNotificationsProjectFileStorageNotifier = class(TDGHNotifierObject, IOTANotifier, IOTAProjectFileStorageNotifier)
+  strict private
+  strict protected
+  public
+    procedure CreatingProject(const ProjectOrGroup: IOTAModule);
+    function GetName: string;
+    procedure ProjectClosing(const ProjectOrGroup: IOTAModule);
+    procedure ProjectLoaded(const ProjectOrGroup: IOTAModule; const Node: IXMLNode);
+    procedure ProjectSaving(const ProjectOrGroup: IOTAModule; const Node: IXMLNode);
+  end;
 
-Implementation
+implementation
 
-Uses
+uses
   SysUtils;
 
 (**
@@ -67,21 +65,19 @@ Uses
   @postcon the module filename is returned.
 
   @nocheck  MissingCONSTInParam
-  
+
   @param   Module as an IOTAModule
   @return  a String
 
 **)
-Function GetModuleFileName(Module : IOTAModule) : String;
-
-ResourceString
+function GetModuleFileName(Module: IOTAModule): string;
+resourcestring
   strNoModule = '(no module)';
-
-Begin
+begin
   Result := strNoModule;
-  If Module <> Nil Then
+  if Module <> Nil then
     Result := ExtractFileName(Module.FileName);
-End;
+end;
 
 { TDGHNotificationsProjectFileStorageNotifier }
 
@@ -95,16 +91,12 @@ End;
   @param   ProjectOrGroup as an IOTAModule as a constant
 
 **)
-Procedure TDGHNotificationsProjectFileStorageNotifier.CreatingProject(
-  Const ProjectOrGroup: IOTAModule);
-
-ResourceString
+procedure TDGHNotificationsProjectFileStorageNotifier.CreatingProject(const ProjectOrGroup: IOTAModule);
+resourcestring
   strCreatingProjectProjectOrGroup = '.CreatingProject = ProjectOrGroup: %s';
-
-Begin
-  DoNotification(
-    Format(strCreatingProjectProjectOrGroup, [GetModuleFileName(ProjectOrGroup)]));
-End;
+begin
+  DoNotification(Format(strCreatingProjectProjectOrGroup, [GetModuleFileName(ProjectOrGroup)]));
+end;
 
 (**
 
@@ -116,18 +108,15 @@ End;
   @return  a String
 
 **)
-Function TDGHNotificationsProjectFileStorageNotifier.GetName: String;
-
-ResourceString
+function TDGHNotificationsProjectFileStorageNotifier.GetName: string;
+resourcestring
   strGetNameResult = '.GetName = Result: %s';
-
-Const
+const
   strTDGHNotificationsProjectFileStorageNotifier = 'TDGHNotifications.ProjectFileStorageNotifier';
-
-Begin
+begin
   Result := strTDGHNotificationsProjectFileStorageNotifier;
   DoNotification(Format(strGetNameResult, [Result]));
-End;
+end;
 
 (**
 
@@ -139,16 +128,12 @@ End;
   @param   ProjectOrGroup as an IOTAModule as a constant
 
 **)
-Procedure TDGHNotificationsProjectFileStorageNotifier.ProjectClosing(
-  Const ProjectOrGroup: IOTAModule);
-
-ResourceString
+procedure TDGHNotificationsProjectFileStorageNotifier.ProjectClosing(const ProjectOrGroup: IOTAModule);
+resourcestring
   strProjectClosingProjectOrGroup = '.ProjectClosing = ProjectOrGroup: %s';
-
-Begin
-  DoNotification(
-    Format(strProjectClosingProjectOrGroup, [GetModuleFileName(ProjectOrGroup)]));
-End;
+begin
+  DoNotification(Format(strProjectClosingProjectOrGroup, [GetModuleFileName(ProjectOrGroup)]));
+end;
 
 (**
 
@@ -158,22 +143,18 @@ End;
   @postcon Provides access to the project module and an XML Node in the project file.
 
   @nohint  Node
-  
+
   @param   ProjectOrGroup as an IOTAModule as a constant
   @param   Node           as an IXMLNode as a constant
 
 **)
-Procedure TDGHNotificationsProjectFileStorageNotifier.ProjectLoaded(
-  Const ProjectOrGroup: IOTAModule; Const Node: IXMLNode); //FI:O804
+procedure TDGHNotificationsProjectFileStorageNotifier.ProjectLoaded(const ProjectOrGroup: IOTAModule; const Node: IXMLNode); //FI:O804
 
-ResourceString
+resourcestring
   strProjectLoadedProjectOrGroupNodeIXMLNode = '.ProjectLoaded = ProjectOrGroup: %s, Node: IXMLNode';
-
-Begin
-  DoNotification(
-    Format(strProjectLoadedProjectOrGroupNodeIXMLNode,
-      [GetModuleFileName(ProjectOrGroup)]));
-End;
+begin
+  DoNotification(Format(strProjectLoadedProjectOrGroupNodeIXMLNode, [GetModuleFileName(ProjectOrGroup)]));
+end;
 
 (**
 
@@ -183,21 +164,18 @@ End;
   @postcon Provides access to the project module and an XML Node in the project file.
 
   @nohint  Node
-  
+
   @param   ProjectOrGroup as an IOTAModule as a constant
   @param   Node           as an IXMLNode as a constant
 
 **)
-Procedure TDGHNotificationsProjectFileStorageNotifier.ProjectSaving(
-  Const ProjectOrGroup: IOTAModule; Const Node: IXMLNode); //FI:O804
+procedure TDGHNotificationsProjectFileStorageNotifier.ProjectSaving(const ProjectOrGroup: IOTAModule; const Node: IXMLNode); //FI:O804
 
-ResourceString
+resourcestring
   strProjectSavingProjectOrGroupNodeIXMLNode = '.ProjectSaving = ProjectOrGroup: %s, Node: IXMLNode';
+begin
+  DoNotification(Format(strProjectSavingProjectOrGroupNodeIXMLNode, [GetModuleFileName(ProjectOrGroup)]));
+end;
 
-Begin
-  DoNotification(
-    Format(strProjectSavingProjectOrGroupNodeIXMLNode,
-      [GetModuleFileName(ProjectOrGroup)]));
-End;
+end.
 
-End.

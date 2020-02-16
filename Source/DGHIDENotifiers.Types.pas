@@ -11,7 +11,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -28,60 +28,42 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.Types;
+unit DGHIDENotifiers.Types;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI,
   Graphics;
 
-Type
+type
   (** An enumerate to describe each notification type. **)
-  TDGHIDENotification = (
-    dinWizard,
-    dinMenuWizard,
-    dinIDENotifier,
-    dinVersionControlNotifier,
-    dinCompileNotifier,
-    dinMessageNotifier,
-    dinIDEInsightNotifier,
-    dinProjectFileStorageNotifier,
-    dinEditorNotifier,
-    dinDebuggerNotifier,
-    dinModuleNotifier,
-    dinProjectNotifier,
-    dinProjectCompileNotifier,
-    dinSourceEditorNotifier,
-    dinFormNotifier,
-    dinEditViewNotifier
-  );
+  TDGHIDENotification = (dinWizard, dinMenuWizard, dinIDENotifier, dinVersionControlNotifier, dinCompileNotifier, dinMessageNotifier, dinIDEInsightNotifier, dinProjectFileStorageNotifier, dinEditorNotifier, dinDebuggerNotifier, dinModuleNotifier, dinProjectNotifier, dinProjectCompileNotifier, dinSourceEditorNotifier, dinFormNotifier, dinEditViewNotifier);
 
   (** A set of the above notification type so that they can be filtered. **)
-  TDGHIDENotifications = Set Of TDGHIDENotification;
+  TDGHIDENotifications = set of TDGHIDENotification;
 
   (** A base notifier object to provide common notification messaging in all notifiers. **)
-  TDGHNotifierObject = Class(TNotifierObject, IOTANotifier)
-  Strict Private
-    FNotification     : TDGHIDENotification;
-    FNotifier         : String;
-    FFileName         : String;
-  Strict Protected
+  TDGHNotifierObject = class(TNotifierObject, IOTANotifier)
+  strict private
+    FNotification: TDGHIDENotification;
+    FNotifier: string;
+    FFileName: string;
+  strict protected
     // IOTANotifier
-    Procedure AfterSave;
-    Procedure BeforeSave;
-    Procedure Destroyed;
-    Procedure Modified;
+    procedure AfterSave;
+    procedure BeforeSave;
+    procedure Destroyed;
+    procedure Modified;
     // Implementation Methods
-    Procedure DoNotification(Const strMessage: String);
-    Function  GetFileName : String;
-  Public
-    Constructor Create(Const strNotifier, strFileName : String; Const iNotification : TDGHIDENotification);
-      Virtual;
-    Destructor Destroy; Override;
+    procedure DoNotification(const strMessage: string);
+    function GetFileName: string;
+  public
+    constructor Create(const strNotifier, strFileName: string; const iNotification: TDGHIDENotification); virtual;
+    destructor Destroy; override;
     // TInterfaceObject
-    Procedure AfterConstruction; Override;
-    Procedure BeforeDestruction; Override;
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
     (**
       A property to read and write the module file name so the notifier knows the file name it is
       associated with.
@@ -89,59 +71,23 @@ Type
       @postcon Returns the filename of the module associated with the notifier.
       @return  a String
     **)
-    Property FileName : String Read FFileName Write FFileName;
-  End;
+    property FileName: string read FFileName write FFileName;
+  end;
 
-Const
+const
   (** A constant array of colours to provide a different colour for each notification. **)
-  iNotificationColours: Array [Low(TDGHIDENotification) .. High(TDGHIDENotification)] Of
-    TColor = (
-    clTeal,
-    clAqua,
-    clMaroon,
-    clRed,
-    clNavy,
-    clBlue,
-    clOlive,
-    clYellow,
-    clGreen,
-    //clLime // not used as its the BitMap mask colour
-    clPurple,
-    clFuchsia,
-    clDkGray,
-    clSilver,
-    $FFFF80,
-    $FF80FF,
-    $80FFFF
-  );
+  iNotificationColours: array[Low(TDGHIDENotification)..High(TDGHIDENotification)] of TColor = (clTeal, clAqua, clMaroon, clRed, clNavy, clBlue, clOlive, clYellow, clGreen,    //clLime // not used as its the BitMap mask colour
+    clPurple, clFuchsia, clDkGray, clSilver, $FFFF80, $FF80FF, $80FFFF);
 
   (** A constant array of boolean to provide a string representation of a boolean value. **)
-  strBoolean: Array [Low(False) .. High(True)] Of String = ('False', 'True');
+  strBoolean: array[Low(False)..High(True)] of string = ('False', 'True');
 
   (** A constant array of strings to provide string representation of each notification. **)
-  strNotificationLabel: Array [TDGHIDENotification] Of
-    String = (
-    'Wizard Notifications',
-    'Menu Wizard Notifications',
-    'IDE Notifications',
-    'Version Control Notifications',
-    'Compile Notifications',
-    'Message Notifications',
-    'IDE Insight Notifications',
-    'Project File Storage Notifications',
-    'Editor Notifications',
-    'Debugger Notifications',
-    'Module Notifications',
-    'Project Notifications',
-    'Project Compile Notifications',
-    'Source Editor Notifications',
-    'Form Notifications',
-    'Edit View Notifier'
-  );
+  strNotificationLabel: array[TDGHIDENotification] of string = ('Wizard Notifications', 'Menu Wizard Notifications', 'IDE Notifications', 'Version Control Notifications', 'Compile Notifications', 'Message Notifications', 'IDE Insight Notifications', 'Project File Storage Notifications', 'Editor Notifications', 'Debugger Notifications', 'Module Notifications', 'Project Notifications', 'Project Compile Notifications', 'Source Editor Notifications', 'Form Notifications', 'Edit View Notifier');
 
-Implementation
+implementation
 
-Uses
+uses
   {$IFDEF DEBUG}
   CodeSiteLogging,
   {$ENDIF}
@@ -156,15 +102,13 @@ Uses
   @postcon Outputs a notification.
 
 **)
-Procedure TDGHNotifierObject.AfterConstruction;
-
-ResourceString
+procedure TDGHNotifierObject.AfterConstruction;
+resourcestring
   strAfterConstruction = '%s.AfterConstruction';
-
-Begin
-  Inherited AfterConstruction;
+begin
+  inherited AfterConstruction;
   DoNotification(Format(strAfterConstruction, [GetFileName]));
-End;
+end;
 
 (**
 
@@ -174,14 +118,12 @@ End;
   @postcon Outputs a notification.
 
 **)
-Procedure TDGHNotifierObject.AfterSave;
-
-ResourceString
+procedure TDGHNotifierObject.AfterSave;
+resourcestring
   strAfterSave = '%s.AfterSave';
-
-Begin
+begin
   DoNotification(Format(strAfterSave, [GetFileName]));
-End;
+end;
 
 (**
 
@@ -191,15 +133,13 @@ End;
   @postcon Outputs a notification.
 
 **)
-Procedure TDGHNotifierObject.BeforeDestruction;
-
-ResourceString
+procedure TDGHNotifierObject.BeforeDestruction;
+resourcestring
   strBeforeDestruction = '%s.BeforeDestruction';
-
-Begin
-  Inherited BeforeDestruction;
+begin
+  inherited BeforeDestruction;
   DoNotification(Format(strBeforeDestruction, [GetFileName]));
-End;
+end;
 
 (**
 
@@ -209,14 +149,12 @@ End;
   @postcon Outputs a notification.
 
 **)
-Procedure TDGHNotifierObject.BeforeSave;
-
-ResourceString
+procedure TDGHNotifierObject.BeforeSave;
+resourcestring
   strBeforeSave = '%s.BeforeSave';
-
-Begin
+begin
   DoNotification(Format(strBeforeSave, [GetFileName]));
-End;
+end;
 
 (**
 
@@ -230,15 +168,14 @@ End;
   @param   iNotification as a TDGHIDENotification as a constant
 
 **)
-Constructor TDGHNotifierObject.Create(Const strNotifier, strFileName : String; Const iNotification : TDGHIDENotification);
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod(Self, 'Create', tmoTiming);{$ENDIF}
-  Inherited Create;
+constructor TDGHNotifierObject.Create(const strNotifier, strFileName: string; const iNotification: TDGHIDENotification);
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod(Self, 'Create', tmoTiming); {$ENDIF}
+  inherited Create;
   FNotifier := strNotifier;
   FFileName := strFileName;
   FNotification := iNotification;
-End;
+end;
 
 (**
 
@@ -248,12 +185,11 @@ End;
   @postcon Does nothing.
 
 **)
-Destructor TDGHNotifierObject.Destroy;
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod(Self, 'Destroy', tmoTiming);{$ENDIF}
-  Inherited Destroy;
-End;
+destructor TDGHNotifierObject.Destroy;
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod(Self, 'Destroy', tmoTiming); {$ENDIF}
+  inherited Destroy;
+end;
 
 (**
 
@@ -263,14 +199,12 @@ End;
   @postcon Outputs a notificiation.
 
 **)
-Procedure TDGHNotifierObject.Destroyed;
-
-ResourceString
+procedure TDGHNotifierObject.Destroyed;
+resourcestring
   strDestroyed = '%s.Destroyed';
-
-Begin
+begin
   DoNotification(Format(strDestroyed, [GetFileName]));
-End;
+end;
 
 (**
 
@@ -282,14 +216,10 @@ End;
   @param   strMessage as a String as a constant
 
 **)
-Procedure TDGHNotifierObject.DoNotification(Const strMessage: String);
-
-Begin
-  TfrmDockableIDENotifications.AddNotification(
-    FNotification,
-    FNotifier + strMessage
-  );
-End;
+procedure TDGHNotifierObject.DoNotification(const strMessage: string);
+begin
+  TfrmDockableIDENotifications.AddNotification(FNotification, FNotifier + strMessage);
+end;
 
 (**
 
@@ -301,13 +231,12 @@ End;
   @return  a String
 
 **)
-Function TDGHNotifierObject.GetFileName: String;
-
-Begin
+function TDGHNotifierObject.GetFileName: string;
+begin
   Result := '';
-  If Length(FFileName) > 0 Then
+  if Length(FFileName) > 0 then
     Result := '(' + ExtractFileName(FFileName) + ')';
-End;
+end;
 
 (**
 
@@ -317,15 +246,12 @@ End;
   @postcon Outputs a message.
 
 **)
-Procedure TDGHNotifierObject.Modified;
-
-ResourceString
+procedure TDGHNotifierObject.Modified;
+resourcestring
   strModified = '%s.Modified';
-
-Begin
+begin
   DoNotification(Format(strModified, [GetFileName]));
-End;
+end;
 
-End.
-
+end.
 

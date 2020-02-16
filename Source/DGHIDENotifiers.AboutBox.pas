@@ -11,7 +11,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -28,18 +28,19 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.AboutBox;
+unit DGHIDENotifiers.AboutBox;
 
-Interface
+interface
 
 {$INCLUDE CompilerDefinitions.inc}
 
-  Procedure AddAboutBoxEntry;
-  Procedure RemoveAboutBoxEntry;
+procedure AddAboutBoxEntry;
 
-Implementation
+procedure RemoveAboutBoxEntry;
 
-Uses
+implementation
+
+uses
   {$IFDEF DEBUG}
   CodeSiteLogging,
   {$ENDIF}
@@ -50,10 +51,10 @@ Uses
   Forms;
 
 {$IFDEF D2005}
-Var
+var
   (** This is an internal reference for the about box entry`s plugin index - requried for
       removal. **)
-  iAboutPlugin : Integer;
+  iAboutPlugin: Integer;
 {$ENDIF}
 
 (**
@@ -64,23 +65,20 @@ Var
   @postcon The about box entry is added to the IDE and its plugin index stored in iAboutPlugin.
 
 **)
-Procedure AddAboutBoxEntry;
 
-Const
+procedure AddAboutBoxEntry;
+const
   strSplashScreenResName = 'DGHIDENotificationsSplashScreenBitMap48x48';
-
-ResourceString
+resourcestring
   strIDEExpertToLogIDENotifications = 'An IDE expert to log IDE notifications.';
   strSKUBuild = 'SKU Build %d.%d.%d.%d';
-
-Var
-  iMajor : Integer;
-  iMinor : Integer;
-  iBugFix : Integer;
-  iBuild : Integer;
-  bmSplashScreen : HBITMAP;
-
-Begin
+var
+  iMajor: Integer;
+  iMinor: Integer;
+  iBugFix: Integer;
+  iBuild: Integer;
+  bmSplashScreen: HBITMAP;
+begin
   {$IFDEF CODESITE}CodeSite.TraceMethod('AddAboutBoxEntry', tmoTiming);{$ENDIF}
   {$IFDEF D2005}
   BuildNumber(iMajor, iMinor, iBugFix, iBuild);
@@ -94,7 +92,7 @@ Begin
     Format(strSplashScreenBuild, [iMajor, iMinor, iBugfix, iBuild]),
     Format(strSKUBuild, [iMajor, iMinor, iBugfix, iBuild]));
   {$ENDIF}
-End;
+end;
 
 (**
 
@@ -104,15 +102,14 @@ End;
   @postcon The about box entry is remvoed from the IDE.
 
 **)
-Procedure RemoveAboutBoxEntry;
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod('RemoveAboutBoxEntry', tmoTiming);{$ENDIF}
+procedure RemoveAboutBoxEntry;
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod('RemoveAboutBoxEntry', tmoTiming); {$ENDIF}
   {$IFDEF D2010}
-  If iAboutPlugin > iWizardFailState Then
-    (BorlandIDEServices As IOTAAboutBoxServices).RemovePluginInfo(iAboutPlugin);
+  if iAboutPlugin > iWizardFailState then
+    (BorlandIDEServices as IOTAAboutBoxServices).RemovePluginInfo(iAboutPlugin);
   {$ENDIF}
-End;
+end;
 
-End.
+end.
 

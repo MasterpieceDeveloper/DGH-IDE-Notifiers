@@ -12,7 +12,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -29,23 +29,21 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.MainUnit;
+unit DGHIDENotifiers.MainUnit;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI;
 
-Function InitWizard(Const BorlandIDEServices: IBorlandIDEServices;
-  RegisterProc: TWizardRegisterProc;
-  Var Terminate: TWizardTerminateProc): Boolean; StdCall;
+function InitWizard(const BorlandIDEServices: IBorlandIDEServices; RegisterProc: TWizardRegisterProc; var Terminate: TWizardTerminateProc): Boolean; stdcall;
 
-Exports
-  InitWizard Name WizardEntryPoint;
+exports
+  InitWizard name WizardEntryPoint;
 
-Implementation
+implementation
 
-Uses
+uses
   {$IFDEF DEBUG}
   CodeSiteLogging,
   {$ENDIF}
@@ -61,25 +59,22 @@ Uses
 
   @nocheck MissingCONSTInParam
   @nohint  Terminate
-  
+
   @param   BorlandIDEServices as an IBorlandIDEServices as a constant
   @param   RegisterProc       as a TWizardRegisterProc
   @param   Terminate          as a TWizardTerminateProc as a reference
   @return  a Boolean
 
 **)
-Function InitWizard(Const BorlandIDEServices: IBorlandIDEServices;
-  RegisterProc: TWizardRegisterProc;
-  Var Terminate: TWizardTerminateProc): Boolean; StdCall; //FI:O804
+function InitWizard(const BorlandIDEServices: IBorlandIDEServices; RegisterProc: TWizardRegisterProc; var Terminate: TWizardTerminateProc): Boolean; stdcall; //FI:O804
 
-Const
+const
   strIOTAWizard = 'IOTAWizard';
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod('InitWizard', tmoTiming);{$ENDIF}
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod('InitWizard', tmoTiming); {$ENDIF}
   Result := BorlandIDEServices <> Nil;
   RegisterProc(TDGHIDENotifiersWizard.Create(strIOTAWizard, '', dinWizard));
-End;
+end;
 
-End.
+end.
 

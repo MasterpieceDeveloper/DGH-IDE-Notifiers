@@ -12,7 +12,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -29,11 +29,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.VersionControlNotifier;
+unit DGHIDENotifiers.VersionControlNotifier;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI,
   Classes,
   DGHIDENotifiers.Types;
@@ -41,34 +41,30 @@ Uses
 {$INCLUDE CompilerDefinitions.inc}
 
 {$IFDEF D2010}
-Type
+type
   (** This class implements version control notifiers to allow you to create your own
       version control system. **)
-  TDGHIDENotificationsVersionControlNotifier = Class(TDGHNotifierObject,
-    IOTAVersionControlNotifier {$IFDEF DXE00}, IOTAVersionControlNotifier150 {$ENDIF})
-  Strict Private
-  Strict Protected
-  Public
+  TDGHIDENotificationsVersionControlNotifier = class(TDGHNotifierObject, IOTAVersionControlNotifier {$IFDEF DXE00}, IOTAVersionControlNotifier150 {$ENDIF})
+  strict private
+  strict protected
+  public
     // IOTAVersionControlNotifier
-    Function AddNewProject(Const Project: IOTAProject): Boolean;
-    Function GetDisplayName: String;
-    Function IsFileManaged(Const Project: IOTAProject; Const IdentList: TStrings)
-      : Boolean;
-    Procedure ProjectManagerMenu(Const Project: IOTAProject; Const IdentList: TStrings;
-      Const ProjectManagerMenuList: IInterfaceList; IsMultiSelect: Boolean);
+    function AddNewProject(const Project: IOTAProject): Boolean;
+    function GetDisplayName: string;
+    function IsFileManaged(const Project: IOTAProject; const IdentList: TStrings): Boolean;
+    procedure ProjectManagerMenu(const Project: IOTAProject; const IdentList: TStrings; const ProjectManagerMenuList: IInterfaceList; IsMultiSelect: Boolean);
     {$IFDEF DXE00}
     // IOTAVersionControlNotifier150
-    Function CheckoutProject(Var ProjectName: String): Boolean;
-    Function CheckoutProjectWithConnection(Var ProjectName: String;
-      Const Connection: String): Boolean;
-    Function GetName: String;
+    function CheckoutProject(var ProjectName: string): Boolean;
+    function CheckoutProjectWithConnection(var ProjectName: string; const Connection: string): Boolean;
+    function GetName: string;
     {$ENDIF}
-  End;
+  end;
 {$ENDIF}
 
-Implementation
+implementation
 
-Uses
+uses
   SysUtils,
   DGHIDENotifiers.Common;
 
@@ -86,18 +82,13 @@ Uses
   @return  a Boolean
 
 **)
-Function TDGHIDENotificationsVersionControlNotifier.AddNewProject(
-  Const Project: IOTAProject): Boolean;
-
-ResourceString
+function TDGHIDENotificationsVersionControlNotifier.AddNewProject(const Project: IOTAProject): Boolean;
+resourcestring
   strAddNewProjectProject = '.AddNewProject = Project: %s';
-
-Begin
+begin
   Result := True;
-  DoNotification(
-    Format(strAddNewProjectProject, [GetProjectFileName(Project)])
-  );
-End;
+  DoNotification(Format(strAddNewProjectProject, [GetProjectFileName(Project)]));
+end;
 
 {$IFDEF DXE00}
 (**
@@ -111,18 +102,13 @@ End;
   @return  a Boolean
 
 **)
-Function TDGHIDENotificationsVersionControlNotifier.CheckoutProject(
-  Var ProjectName: String): Boolean;
-
-ResourceString
+function TDGHIDENotificationsVersionControlNotifier.CheckoutProject(var ProjectName: string): Boolean;
+resourcestring
   strCheckOutProjectProjectName = '150.CheckOutProject = ProjectName: %s';
-
-Begin
+begin
   Result := True;
-  DoNotification(
-    Format(strCheckOutProjectProjectName, [ProjectName])
-  );
-End;
+  DoNotification(Format(strCheckOutProjectProjectName, [ProjectName]));
+end;
 
 (**
 
@@ -136,20 +122,13 @@ End;
   @return  a Boolean
 
 **)
-Function TDGHIDENotificationsVersionControlNotifier.CheckoutProjectWithConnection(
-  Var ProjectName: String; Const Connection: String): Boolean;
-
-ResourceString
-  strCheckOutProjectWithConnectionProjectNameConnection = '150.CheckOutProjectWithConnection = ' + 
-    'ProjectName: %s, Connection: %s';
-
-Begin
+function TDGHIDENotificationsVersionControlNotifier.CheckoutProjectWithConnection(var ProjectName: string; const Connection: string): Boolean;
+resourcestring
+  strCheckOutProjectWithConnectionProjectNameConnection = '150.CheckOutProjectWithConnection = ' + 'ProjectName: %s, Connection: %s';
+begin
   Result := True;
-  DoNotification(
-    Format(strCheckOutProjectWithConnectionProjectNameConnection,
-    [ProjectName, Connection])
-  );
-End;
+  DoNotification(Format(strCheckOutProjectWithConnectionProjectNameConnection, [ProjectName, Connection]));
+end;
 {$ENDIF}
 
 (**
@@ -162,18 +141,15 @@ End;
   @return  a String
 
 **)
-Function TDGHIDENotificationsVersionControlNotifier.GetDisplayName: String;
 
-ResourceString
+function TDGHIDENotificationsVersionControlNotifier.GetDisplayName: string;
+resourcestring
   strDGHIDENotifier = 'DGH IDE Notifier';
   strGetDisplayName = '.GetDisplayName = %s';
-
-Begin
+begin
   Result := strDGHIDENotifier;
-  DoNotification(
-    Format(strGetDisplayName, [Result])
-  );
-End;
+  DoNotification(Format(strGetDisplayName, [Result]));
+end;
 
 {$IFDEF DXE00}
 (**
@@ -186,20 +162,15 @@ End;
   @return  a String
 
 **)
-Function TDGHIDENotificationsVersionControlNotifier.GetName: String;
-
-ResourceString
+function TDGHIDENotificationsVersionControlNotifier.GetName: string;
+resourcestring
   strGetName = '.GetName = %s';
-
-Const
+const
   strDGHIDENotifier = 'DGHIDENotifier';
-
-Begin
+begin
   Result := strDGHIDENotifier;
-  DoNotification(
-    Format(strGetName, [Result])
-  );
-End;
+  DoNotification(Format(strGetName, [Result]));
+end;
 {$ENDIF}
 
 (**
@@ -214,19 +185,14 @@ End;
   @return  a Boolean
 
 **)
-Function TDGHIDENotificationsVersionControlNotifier.IsFileManaged(
-  Const Project: IOTAProject; Const IdentList: TStrings): Boolean;
 
-ResourceString
+function TDGHIDENotificationsVersionControlNotifier.IsFileManaged(const Project: IOTAProject; const IdentList: TStrings): Boolean;
+resourcestring
   strIsFileManagedProjectIdentList = '.IsFileManaged = Project: %s, IdentList: %s';
-
-Begin
+begin
   Result := False;
-  DoNotification(
-    Format(strIsFileManagedProjectIdentList, [
-      GetProjectFileName(Project), IdentList.Text])
-  );
-End;
+  DoNotification(Format(strIsFileManagedProjectIdentList, [GetProjectFileName(Project), IdentList.Text]));
+end;
 
 (**
 
@@ -245,25 +211,17 @@ End;
   @param   IsMultiSelect          as a Boolean
 
 **)
-Procedure TDGHIDENotificationsVersionControlNotifier.ProjectManagerMenu(
-  Const Project: IOTAProject; Const IdentList: TStrings;
-  Const ProjectManagerMenuList: IInterfaceList; IsMultiSelect: Boolean); //FI:O804
+procedure TDGHIDENotificationsVersionControlNotifier.ProjectManagerMenu(const Project: IOTAProject; const IdentList: TStrings; const ProjectManagerMenuList: IInterfaceList; IsMultiSelect: Boolean); //FI:O804
 
-ResourceString
-  strIsFileManaged = '150.IsFileManaged = Project: %s, IdentList: %s, ProjectManagerMenuList: %s, ' + 
-    'IsMultiSelect: %s';
-
-Const
+resourcestring
+  strIsFileManaged = '150.IsFileManaged = Project: %s, IdentList: %s, ProjectManagerMenuList: %s, ' + 'IsMultiSelect: %s';
+const
   strProjectManagerMenuList = 'ProjectManagerMenuList';
-
-Begin
-  If Project = Nil Then
-  DoNotification(
-    Format(strIsFileManaged,
-    [GetProjectFileName(Project), IdentList.Text, strProjectManagerMenuList,
-      strBoolean[IsMultiSelect]])
-  );
-End;
+begin
+  if Project = Nil then
+    DoNotification(Format(strIsFileManaged, [GetProjectFileName(Project), IdentList.Text, strProjectManagerMenuList, strBoolean[IsMultiSelect]]));
+end;
 {$ENDIF}
 
-End.
+end.
+

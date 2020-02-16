@@ -1,16 +1,16 @@
 (**
-  
+
   This module contains a class which implements the IOTAEditViewNotifier for draweing on the code editor.
 
   @Author  David Hoyle
   @Version 1.687
   @Date    09 Feb 2020
-  
+
   @license
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -27,38 +27,36 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.EditViewNotifier;
+unit DGHIDENotifiers.EditViewNotifier;
 
-Interface
+interface
 
 {$INCLUDE CompilerDefinitions.inc}
 
 {$IFDEF DXE100}
-Uses
+uses
   ToolsAPI,
   Classes,
   Graphics,
   Windows,
   DGHIDENotifiers.Types;
 
-Type
+type
   (** A class which implements the INTAEditViewNotifier interface for drawings on the editor. **)
-  TDINEditViewNotifier = Class(TDGHNotifierObject, IInterface, IOTANotifier, INTAEditViewNotifier)
-  Strict Private
-  Strict Protected
-    Procedure BeginPaint(Const View: IOTAEditView; Var FullRepaint: Boolean);
-    Procedure EditorIdle(Const View: IOTAEditView);
-    Procedure EndPaint(Const View: IOTAEditView);
-    Procedure PaintLine(Const View: IOTAEditView; LineNumber: Integer; Const LineText: PAnsiChar;
-      Const TextWidth: Word; Const LineAttributes: TOTAAttributeArray; Const Canvas: TCanvas;
-      Const TextRect: TRect; Const LineRect: TRect; Const CellSize: TSize);
-  Public
-  End;
+  TDINEditViewNotifier = class(TDGHNotifierObject, IInterface, IOTANotifier, INTAEditViewNotifier)
+  strict private
+  strict protected
+    procedure BeginPaint(const View: IOTAEditView; var FullRepaint: Boolean);
+    procedure EditorIdle(const View: IOTAEditView);
+    procedure EndPaint(const View: IOTAEditView);
+    procedure PaintLine(const View: IOTAEditView; LineNumber: Integer; const LineText: PAnsiChar; const TextWidth: Word; const LineAttributes: TOTAAttributeArray; const Canvas: TCanvas; const TextRect: TRect; const LineRect: TRect; const CellSize: TSize);
+  public
+  end;
 {$ENDIF DXE100}
 
-Implementation
+implementation
 
-Uses
+uses
   {$IFDEF DEBUG}
   CodeSiteLogging,
   {$ENDIF}
@@ -78,22 +76,12 @@ Uses
   @param   FullRepaint as a Boolean as a reference
 
 **)
-Procedure TDINEditViewNotifier.BeginPaint(Const View: IOTAEditView; Var FullRepaint: Boolean);
-
-ResourceString
+procedure TDINEditViewNotifier.BeginPaint(const View: IOTAEditView; var FullRepaint: Boolean);
+resourcestring
   strBeginPaint = '.BeginPaint = View.TopRow: %d, FullRepaint: %s';
-
-Begin
-  DoNotification(
-    Format(
-      strBeginPaint,
-      [
-        View.TopRow,
-        BoolToStr(FullRepaint)
-      ]
-    )
-  );
-End;
+begin
+  DoNotification(Format(strBeginPaint, [View.TopRow, BoolToStr(FullRepaint)]));
+end;
 
 (**
 
@@ -107,21 +95,12 @@ End;
   @param   View as an IOTAEditView as a constant
 
 **)
-Procedure TDINEditViewNotifier.EditorIdle(Const View: IOTAEditView);
-
-ResourceString
+procedure TDINEditViewNotifier.EditorIdle(const View: IOTAEditView);
+resourcestring
   strEditorIdle = '.EditorIdle = View.TopRow: %d';
-
-Begin
-  DoNotification(
-    Format(
-      strEditorIdle,
-      [
-        View.TopRow
-      ]
-    )
-  );
-End;
+begin
+  DoNotification(Format(strEditorIdle, [View.TopRow]));
+end;
 
 (**
 
@@ -133,21 +112,12 @@ End;
   @param   View        as an IOTAEditView as a constant
 
 **)
-Procedure TDINEditViewNotifier.EndPaint(Const View: IOTAEditView);
-
-ResourceString
+procedure TDINEditViewNotifier.EndPaint(const View: IOTAEditView);
+resourcestring
   strEndPaint = '.EndPaint = View.TopRow: %d';
-
-Begin
-  DoNotification(
-    Format(
-      strEndPaint,
-      [
-        View.TopRow
-      ]
-    )
-  );
-End;
+begin
+  DoNotification(Format(strEndPaint, [View.TopRow]));
+end;
 
 (**
 
@@ -172,28 +142,13 @@ End;
   @param   CellSize       as a TSize as a constant
 
 **)
-Procedure TDINEditViewNotifier.PaintLine(Const View: IOTAEditView; LineNumber: Integer;
-  Const LineText: PAnsiChar; Const TextWidth: Word; Const LineAttributes: TOTAAttributeArray;
-  Const Canvas: TCanvas; Const TextRect, LineRect: TRect; Const CellSize: TSize);
-
-ResourceString
-  strEndPaint = '.PaintLine = View.TopRow, LineNumber: %d, LineText, TextWidth: %d,' +
-    ' LineAttributes, Canvas, TextRect, CellSize';
-
-Begin
-  DoNotification(
-    Format(
-      strEndPaint,
-      [
-        View.TopRow,
-        LineNumber,
-        TextWidth
-      ]
-    )
-  );
-End;
+procedure TDINEditViewNotifier.PaintLine(const View: IOTAEditView; LineNumber: Integer; const LineText: PAnsiChar; const TextWidth: Word; const LineAttributes: TOTAAttributeArray; const Canvas: TCanvas; const TextRect, LineRect: TRect; const CellSize: TSize);
+resourcestring
+  strEndPaint = '.PaintLine = View.TopRow, LineNumber: %d, LineText, TextWidth: %d,' + ' LineAttributes, Canvas, TextRect, CellSize';
+begin
+  DoNotification(Format(strEndPaint, [View.TopRow, LineNumber, TextWidth]));
+end;
 {$ENDIF DXE100}
 
-End.
-
+end.
 

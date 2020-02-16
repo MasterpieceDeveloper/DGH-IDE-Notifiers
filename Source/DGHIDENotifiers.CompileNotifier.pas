@@ -12,7 +12,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -29,49 +29,46 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.CompileNotifier;
+unit DGHIDENotifiers.CompileNotifier;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI,
   DGHIDENotifiers.Types;
 
 {$INCLUDE 'CompilerDefinitions.inc'}
 
 {$IFDEF D2010}
-Type
+type
   (** This class defines a notifier for capturing Compiler notifications. @Note Group in this
       context is NOT a project group in the IDE but a group of projects to be compiled at the
       same time, ie. if they are dependency linked. **)
-  TDGHIDENotificationsCompileNotifier = Class(TDGHNotifierObject, IOTACompileNotifier)
-  Strict Private
-  Strict Protected
-  Public
-    Procedure ProjectCompileFinished(Const Project: IOTAProject;
-      Result: TOTACompileResult);
-    Procedure ProjectCompileStarted(Const Project: IOTAProject; Mode: TOTACompileMode);
-    Procedure ProjectGroupCompileFinished(Result: TOTACompileResult);
-    Procedure ProjectGroupCompileStarted(Mode: TOTACompileMode);
-  End;
+  TDGHIDENotificationsCompileNotifier = class(TDGHNotifierObject, IOTACompileNotifier)
+  strict private
+  strict protected
+  public
+    procedure ProjectCompileFinished(const Project: IOTAProject; Result: TOTACompileResult);
+    procedure ProjectCompileStarted(const Project: IOTAProject; Mode: TOTACompileMode);
+    procedure ProjectGroupCompileFinished(Result: TOTACompileResult);
+    procedure ProjectGroupCompileStarted(Mode: TOTACompileMode);
+  end;
 {$ENDIF}
 
-Implementation
+implementation
 
-Uses
+uses
   SysUtils,
   DGHIDENotifiers.Common;
 
 {$IFDEF D2010}
-Const
+const
   (** A constant aray of strings to provide a string representation of the TOTACompileResult
       enumerate. **)
-  strCompileResult : Array[Low(TOTACompileResult)..High(TOTACompileResult)] Of String = (
-    'crOTAFailed', 'crOTASucceeded', 'crOTABackground');
+  strCompileResult: array[Low(TOTACompileResult)..High(TOTACompileResult)] of string = ('crOTAFailed', 'crOTASucceeded', 'crOTABackground');
   (** A constant aray of strings to provide a string representation of the TOTACompileMode
       enumerate. **)
-  strCompileMode : Array[Low(TOTACompileMode)..High(TOTACompileMode)] Of String = (
-    'cmOTAMake', 'cmOTABuild', 'cmOTACheck', 'cmOTAMakeUnit');
+  strCompileMode: array[Low(TOTACompileMode)..High(TOTACompileMode)] of string = ('cmOTAMake', 'cmOTABuild', 'cmOTACheck', 'cmOTAMakeUnit');
 
 { TDGHIDENotificationsCompileNotifier }
 
@@ -83,23 +80,17 @@ Const
   @postcon Outputs the projecy file name and whether the project compiled successfully.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Project as an IOTAProject as a constant
   @param   Result  as a TOTACompileResult
 
 **)
-Procedure TDGHIDENotificationsCompileNotifier.ProjectCompileFinished(
-  Const Project: IOTAProject; Result: TOTACompileResult);
-
-ResourceString
+procedure TDGHIDENotificationsCompileNotifier.ProjectCompileFinished(const Project: IOTAProject; Result: TOTACompileResult);
+resourcestring
   strIOTACompileNotifier = '.ProjectCompileFinished = Project: %s, Result: %s';
-
-Begin
-  DoNotification(
-    Format(strIOTACompileNotifier, [
-      GetProjectFileName(Project), strCompileResult[Result]])
-  );
-End;
+begin
+  DoNotification(Format(strIOTACompileNotifier, [GetProjectFileName(Project), strCompileResult[Result]]));
+end;
 
 (**
 
@@ -109,23 +100,17 @@ End;
   @postcon Outputs the project file name and the mode of compilation.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Project as an IOTAProject as a constant
   @param   Mode    as a TOTACompileMode
 
 **)
-Procedure TDGHIDENotificationsCompileNotifier.ProjectCompileStarted(
-  Const Project: IOTAProject; Mode: TOTACompileMode);
-
-ResourceString
+procedure TDGHIDENotificationsCompileNotifier.ProjectCompileStarted(const Project: IOTAProject; Mode: TOTACompileMode);
+resourcestring
   strIOTACompileNotifierProjectCompileStarted = '.ProjectCompileStarted = Project: %s, Mode: %s';
-
-Begin
-  DoNotification(
-    Format(strIOTACompileNotifierProjectCompileStarted, [
-      GetProjectFileName(Project), strCompileMode[Mode]])
-  );
-End;
+begin
+  DoNotification(Format(strIOTACompileNotifierProjectCompileStarted, [GetProjectFileName(Project), strCompileMode[Mode]]));
+end;
 
 (**
 
@@ -135,22 +120,16 @@ End;
   @postcon Outputs whether the compilation is successful.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Result as a TOTACompileResult
 
 **)
-Procedure TDGHIDENotificationsCompileNotifier.ProjectGroupCompileFinished(
-  Result: TOTACompileResult);
-
-ResourceString
+procedure TDGHIDENotificationsCompileNotifier.ProjectGroupCompileFinished(Result: TOTACompileResult);
+resourcestring
   strIOTACompileNotifierProjectGroupCompileFinished = '.ProjectGroupCompileFinished = Result: %s';
-
-Begin
-  DoNotification(
-    Format(strIOTACompileNotifierProjectGroupCompileFinished, [
-      strCompileResult[Result]])
-  );
-End;
+begin
+  DoNotification(Format(strIOTACompileNotifierProjectGroupCompileFinished, [strCompileResult[Result]]));
+end;
 
 (**
 
@@ -160,22 +139,17 @@ End;
   @postcon Outputs the mode of compilation.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Mode as a TOTACompileMode
 
 **)
-Procedure TDGHIDENotificationsCompileNotifier.ProjectGroupCompileStarted(
-  Mode: TOTACompileMode);
-
-ResourceString
+procedure TDGHIDENotificationsCompileNotifier.ProjectGroupCompileStarted(Mode: TOTACompileMode);
+resourcestring
   strIOTACompileNotifierProjectGroupCompileStarted = '.ProjectGroupCompileStarted = Mode: %s';
-
-Begin
-  DoNotification(
-    Format(strIOTACompileNotifierProjectGroupCompileStarted, [
-      strCompileMode[Mode]])
-  );
-End;
+begin
+  DoNotification(Format(strIOTACompileNotifierProjectGroupCompileStarted, [strCompileMode[Mode]]));
+end;
 {$ENDIF}
 
-End.
+end.
+

@@ -12,7 +12,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -29,37 +29,35 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.IDEInsightNotifier;
+unit DGHIDENotifiers.IDEInsightNotifier;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI,
   DGHIDENotifiers.Types;
 
 {$INCLUDE CompilerDefinitions.inc}
 
 {$IFDEF D2010}
-Type
+type
   (** This class implements a notifier for IDE Insight changes. **)
-  TDGHIDENotificationsIDEInsightNotifier = Class(TDGHNotifierObject,
-    IOTAIDEInsightNotifier {$IFDEF DXE00}, IOTAIDEInsightNotifier150 {$ENDIF})
-  Strict Private
-  Strict Protected
-  Public
+  TDGHIDENotificationsIDEInsightNotifier = class(TDGHNotifierObject, IOTAIDEInsightNotifier {$IFDEF DXE00}, IOTAIDEInsightNotifier150 {$ENDIF})
+  strict private
+  strict protected
+  public
     // IOTAIDEInsightNotifier
-    Procedure RequestingItems(IDEInsightService: IOTAIDEInsightService;
-      Context: IInterface);
+    procedure RequestingItems(IDEInsightService: IOTAIDEInsightService; Context: IInterface);
     {$IFDEF DXE00}
     // IOTAIDEInsightNotifier150
-    Procedure ReleaseItems(Context: IInterface);
+    procedure ReleaseItems(Context: IInterface);
     {$ENDIF}
-  End;
+  end;
 {$ENDIF}
 
-Implementation
+implementation
 
-Uses
+uses
   SysUtils;
 
 {$IFDEF D2010}
@@ -75,18 +73,16 @@ Uses
   @postcon Provides a context.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Context as an IInterface
 
 **)
-Procedure TDGHIDENotificationsIDEInsightNotifier.ReleaseItems(Context: IInterface);
-
-ResourceString
+procedure TDGHIDENotificationsIDEInsightNotifier.ReleaseItems(Context: IInterface);
+resourcestring
   strReleaseItems = '.ReleaseItems = Context: %x';
-
-Begin
+begin
   DoNotification(Format(strReleaseItems, [Integer(Context)]));
-End;
+end;
 {$ENDIF}
 
 (**
@@ -97,23 +93,19 @@ End;
   @postcon Povides access to the IDE Inight services and an reserved context value.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   IDEInsightService as an IOTAIDEInsightService
   @param   Context           as an IInterface
 
 **)
-Procedure TDGHIDENotificationsIDEInsightNotifier.RequestingItems(
-  IDEInsightService: IOTAIDEInsightService; Context: IInterface);
 
-ResourceString
+procedure TDGHIDENotificationsIDEInsightNotifier.RequestingItems(IDEInsightService: IOTAIDEInsightService; Context: IInterface);
+resourcestring
   strRequestingItems = '.RequestingItems = IDEInsightService.CategoryCount: %s, Context: %x';
-
-Begin
-  DoNotification(
-    Format(strRequestingItems, [
-      IDEInsightService.CategoryCount, Integer(Context)])
-    );
-End;
+begin
+  DoNotification(Format(strRequestingItems, [IDEInsightService.CategoryCount, Integer(Context)]));
+end;
 {$ENDIF}
 
-End.
+end.
+

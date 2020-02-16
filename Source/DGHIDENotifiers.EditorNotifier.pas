@@ -11,7 +11,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -28,11 +28,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.EditorNotifier;
+unit DGHIDENotifiers.EditorNotifier;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI,
   DockForm,
   Classes,
@@ -40,42 +40,34 @@ Uses
 
 {$INCLUDE 'CompilerDefinitions.inc'}
 
-
-Type
+type
   (** This class implements a notifier to capture editor notifications. **)
-  TDGHNotificationsEditorNotifier = Class(TDGHNotifierObject, IOTANotifier, IOTAEditorNotifier,
-    INTAEditServicesNotifier)
-  Strict Private
-  Strict Protected
-  Public
+  TDGHNotificationsEditorNotifier = class(TDGHNotifierObject, IOTANotifier, IOTAEditorNotifier, INTAEditServicesNotifier)
+  strict private
+  strict protected
+  public
     // IOTAEditorNotifier
-    Procedure ViewActivated(Const View: IOTAEditView);
-    Procedure ViewNotification(Const View: IOTAEditView; Operation: TOperation);
+    procedure ViewActivated(const View: IOTAEditView);
+    procedure ViewNotification(const View: IOTAEditView; Operation: TOperation);
     // INTAEditorServicesNotifier
-    Procedure DockFormRefresh(Const EditWindow: INTAEditWindow; DockForm: TDockableForm);
-    Procedure DockFormUpdated(Const EditWindow: INTAEditWindow; DockForm: TDockableForm);
-    Procedure DockFormVisibleChanged(Const EditWindow: INTAEditWindow;
-      DockForm: TDockableForm);
-    Procedure EditorViewActivated(Const EditWindow: INTAEditWindow;
-      Const EditView: IOTAEditView);
-    Procedure EditorViewModified(Const EditWindow: INTAEditWindow;
-      Const EditView: IOTAEditView);
-    Procedure WindowActivated(Const EditWindow: INTAEditWindow);
-    Procedure WindowCommand(Const EditWindow: INTAEditWindow; Command: Integer;
-      Param: Integer;
-      Var Handled: Boolean);
-    Procedure WindowNotification(Const EditWindow: INTAEditWindow; Operation: TOperation);
-    Procedure WindowShow(Const EditWindow: INTAEditWindow; Show: Boolean;
-      LoadedFromDesktop: Boolean);
-  End;
+    procedure DockFormRefresh(const EditWindow: INTAEditWindow; DockForm: TDockableForm);
+    procedure DockFormUpdated(const EditWindow: INTAEditWindow; DockForm: TDockableForm);
+    procedure DockFormVisibleChanged(const EditWindow: INTAEditWindow; DockForm: TDockableForm);
+    procedure EditorViewActivated(const EditWindow: INTAEditWindow; const EditView: IOTAEditView);
+    procedure EditorViewModified(const EditWindow: INTAEditWindow; const EditView: IOTAEditView);
+    procedure WindowActivated(const EditWindow: INTAEditWindow);
+    procedure WindowCommand(const EditWindow: INTAEditWindow; Command: Integer; Param: Integer; var Handled: Boolean);
+    procedure WindowNotification(const EditWindow: INTAEditWindow; Operation: TOperation);
+    procedure WindowShow(const EditWindow: INTAEditWindow; Show: Boolean; LoadedFromDesktop: Boolean);
+  end;
 
-Implementation
+implementation
 
-Uses
+uses
   SysUtils,
   TypInfo;
 
-ResourceString
+resourcestring
   (** A resource string for no edit window **)
   strNoEditWindow = '(no edit window)';
   (** A resource string for no form **)
@@ -91,18 +83,17 @@ ResourceString
   @postcon The DockForm Caption is returned.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   DockForm as a TDockableForm
   @return  a String
 
 **)
-Function GetDockFormCaption(DockForm : TDockableForm) : String;
-
-Begin
-    Result := strNoDockform;
-    If DockForm <> Nil Then
-      Result := DockForm.Caption;
-End;
+function GetDockFormCaption(DockForm: TDockableForm): string;
+begin
+  Result := strNoDockform;
+  if DockForm <> Nil then
+    Result := DockForm.Caption;
+end;
 
 (**
 
@@ -112,18 +103,17 @@ End;
   @postcon The DockForm ClassName is returned.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   DockForm as a TDockableForm
   @return  a String
 
 **)
-Function GetDockFormClassName(DockForm : TDockableForm) : String;
-
-Begin
+function GetDockFormClassName(DockForm: TDockableForm): string;
+begin
   Result := strNoDockform;
-  If DockForm <> Nil Then
+  if DockForm <> Nil then
     Result := DockForm.ClassName;
-End;
+end;
 
 (**
 
@@ -133,18 +123,17 @@ End;
   @postcon The top line of the edit view is returned.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   EditView as an IOTAEditView
   @return  an Integer
 
 **)
-Function GetEditViewTopRow(EditView : IOTAEditView) : Integer;
-
-Begin
+function GetEditViewTopRow(EditView: IOTAEditView): Integer;
+begin
   Result := 0;
-  If EditView <> Nil Then
+  if EditView <> Nil then
     Result := EditView.TopRow;
-End;
+end;
 
 (**
 
@@ -154,22 +143,21 @@ End;
   @postcon The Form Caption of thr editor form is returned.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   EditWindow as an INTAEditWindow
   @return  a String
 
 **)
-Function GetEditWindowFormCaption(EditWindow : INTAEditWindow) : String;
-
-Begin
+function GetEditWindowFormCaption(EditWindow: INTAEditWindow): string;
+begin
   Result := strNoEditWindow;
-  If EditWindow <> Nil Then
-    Begin
-      Result := strNoForm;
-      If EditWindow.Form <> Nil Then
-        Result := ExtractFileName(EditWindow.Form.Caption);
-    End;
-End;
+  if EditWindow <> Nil then
+  begin
+    Result := strNoForm;
+    if EditWindow.Form <> Nil then
+      Result := ExtractFileName(EditWindow.Form.Caption);
+  end;
+end;
 
 (**
 
@@ -179,22 +167,21 @@ End;
   @postcon The Form ClassName of thr editor form is returned.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   EditWindow as an INTAEditWindow
   @return  a String
 
 **)
-Function GetEditWindowFormClassName(EditWindow : INTAEditWindow) : String;
-
-Begin
+function GetEditWindowFormClassName(EditWindow: INTAEditWindow): string;
+begin
   Result := strNoEditWindow;
-  If EditWindow <> Nil Then
-    Begin
-      Result := strNoForm;
-      If EditWindow.Form <> Nil Then
-        Result := EditWindow.Form.ClassName;
-    End;
-End;
+  if EditWindow <> Nil then
+  begin
+    Result := strNoForm;
+    if EditWindow.Form <> Nil then
+      Result := EditWindow.Form.ClassName;
+  end;
+end;
 
 { TDGHNotificationsEditorNotifier }
 
@@ -206,27 +193,17 @@ End;
   @postcon Provides access to the editor window and dockable form.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   EditWindow as an INTAEditWindow as a constant
   @param   DockForm   as a TDockableForm
 
 **)
-Procedure TDGHNotificationsEditorNotifier.DockFormRefresh(Const EditWindow: INTAEditWindow;
-  DockForm: TDockableForm);
-
-ResourceString
+procedure TDGHNotificationsEditorNotifier.DockFormRefresh(const EditWindow: INTAEditWindow; DockForm: TDockableForm);
+resourcestring
   strDockFormRefresh = '.DockFormRefresh = EditWindow: %s.%s, DockForm: %s.%s';
-
-Begin
-  DoNotification(Format(
-    strDockFormRefresh, [
-      GetEditWindowFormClassName(EditWindow),
-      GetEditWindowFormCaption(EditWindow),
-      GetDockFormClassName(DockForm),
-      GetDockFormCaption(DockForm)
-    ]
-  ));
-End;
+begin
+  DoNotification(Format(strDockFormRefresh, [GetEditWindowFormClassName(EditWindow), GetEditWindowFormCaption(EditWindow), GetDockFormClassName(DockForm), GetDockFormCaption(DockForm)]));
+end;
 
 (**
 
@@ -236,27 +213,17 @@ End;
   @postcon Provides access to the dockable form and the editor window.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   EditWindow as an INTAEditWindow as a constant
   @param   DockForm   as a TDockableForm
 
 **)
-Procedure TDGHNotificationsEditorNotifier.DockFormUpdated(Const EditWindow: INTAEditWindow;
-  DockForm: TDockableForm);
-
-ResourceString
+procedure TDGHNotificationsEditorNotifier.DockFormUpdated(const EditWindow: INTAEditWindow; DockForm: TDockableForm);
+resourcestring
   strDockFormUpdated = '.DockFormUpdated = EditWindow: %s.%s, DockForm: %s.%s';
-
-Begin
-  DoNotification(Format(
-    strDockFormUpdated, [
-      GetEditWindowFormClassName(EditWindow),
-      GetEditWindowFormCaption(EditWindow),
-      GetDockFormClassName(DockForm),
-      GetDockFormCaption(DockForm)
-    ]
-  ));
-End;
+begin
+  DoNotification(Format(strDockFormUpdated, [GetEditWindowFormClassName(EditWindow), GetEditWindowFormCaption(EditWindow), GetDockFormClassName(DockForm), GetDockFormCaption(DockForm)]));
+end;
 
 (**
 
@@ -266,27 +233,17 @@ End;
   @postcon Provides access to the edit window and dickable form.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   EditWindow as an INTAEditWindow as a constant
   @param   DockForm   as a TDockableForm
 
 **)
-Procedure TDGHNotificationsEditorNotifier.DockFormVisibleChanged(Const EditWindow
-  : INTAEditWindow; DockForm: TDockableForm);
-
-ResourceString
+procedure TDGHNotificationsEditorNotifier.DockFormVisibleChanged(const EditWindow: INTAEditWindow; DockForm: TDockableForm);
+resourcestring
   strDockFormVisibleChanged = '.DockFormVisibleChanged = EditWindow: %s.%s, DockForm: %s.%s';
-
-Begin
-  DoNotification(Format(
-    strDockFormVisibleChanged, [
-      GetEditWindowFormClassName(EditWindow),
-      GetEditWindowFormCaption(EditWindow),
-      GetDockFormClassName(DockForm),
-      GetDockFormCaption(DockForm)
-    ]
-  ));
-End;
+begin
+  DoNotification(Format(strDockFormVisibleChanged, [GetEditWindowFormClassName(EditWindow), GetEditWindowFormCaption(EditWindow), GetDockFormClassName(DockForm), GetDockFormCaption(DockForm)]));
+end;
 
 (**
 
@@ -300,21 +257,12 @@ End;
   @param   EditView   as an IOTAEditView as a constant
 
 **)
-Procedure TDGHNotificationsEditorNotifier.EditorViewActivated(Const EditWindow
-  : INTAEditWindow; Const EditView: IOTAEditView);
-
-ResourceString
+procedure TDGHNotificationsEditorNotifier.EditorViewActivated(const EditWindow: INTAEditWindow; const EditView: IOTAEditView);
+resourcestring
   strEditorViewActivated = '.EditorViewActivated = EditWindow: %s.%s, EditView.TopRow: %d';
-
-Begin
-  DoNotification(Format(
-    strEditorViewActivated, [
-      GetEditWindowFormClassName(EditWindow),
-      GetEditWindowFormCaption(EditWindow),
-      GetEditViewTopRow(EditView)
-    ]
-  ));
-End;
+begin
+  DoNotification(Format(strEditorViewActivated, [GetEditWindowFormClassName(EditWindow), GetEditWindowFormCaption(EditWindow), GetEditViewTopRow(EditView)]));
+end;
 
 (**
 
@@ -327,21 +275,12 @@ End;
   @param   EditView   as an IOTAEditView as a constant
 
 **)
-Procedure TDGHNotificationsEditorNotifier.EditorViewModified(Const EditWindow
-  : INTAEditWindow; Const EditView: IOTAEditView);
-
-ResourceString
+procedure TDGHNotificationsEditorNotifier.EditorViewModified(const EditWindow: INTAEditWindow; const EditView: IOTAEditView);
+resourcestring
   strEditorViewModified = '.EditorViewModified = EditWindow: %s.%s, EditView.TopRow: %d';
-
-Begin
-  DoNotification(Format(
-    strEditorViewModified, [
-      GetEditWindowFormClassName(EditWindow),
-      GetEditWindowFormCaption(EditWindow),
-      GetEditViewTopRow(EditView)
-    ]
-  ));
-End;
+begin
+  DoNotification(Format(strEditorViewModified, [GetEditWindowFormClassName(EditWindow), GetEditWindowFormCaption(EditWindow), GetEditViewTopRow(EditView)]));
+end;
 
 (**
 
@@ -353,16 +292,12 @@ End;
   @param   View as an IOTAEditView as a constant
 
 **)
-Procedure TDGHNotificationsEditorNotifier.ViewActivated(Const View: IOTAEditView);
-
-ResourceString
+procedure TDGHNotificationsEditorNotifier.ViewActivated(const View: IOTAEditView);
+resourcestring
   strViewActiviated = '.ViewActiviated = View.TopRow: %d';
-
-Begin
-  DoNotification(
-    Format(strViewActiviated, [GetEditViewTopRow(View)])
-  );
-End;
+begin
+  DoNotification(Format(strViewActiviated, [GetEditViewTopRow(View)]));
+end;
 
 (**
 
@@ -372,25 +307,17 @@ End;
   @postcon Provide access to the edit view and the operation (Insert or Remove).
 
   @nocheck MissingCONSTInParam
-  
+
   @param   View      as an IOTAEditView as a constant
   @param   Operation as a TOperation
 
 **)
-Procedure TDGHNotificationsEditorNotifier.ViewNotification(Const View: IOTAEditView;
-  Operation: TOperation);
-
-ResourceString
+procedure TDGHNotificationsEditorNotifier.ViewNotification(const View: IOTAEditView; Operation: TOperation);
+resourcestring
   strViewNotification = '.ViewNotification = View.TopRow: %d, Operation: %s';
-
-Begin
-  DoNotification(
-    Format(strViewNotification, [
-      GetEditViewTopRow(View),
-      GetEnumName(TypeInfo(TOperation), Ord(Operation))
-    ])
-  );
-End;
+begin
+  DoNotification(Format(strViewNotification, [GetEditViewTopRow(View), GetEnumName(TypeInfo(TOperation), Ord(Operation))]));
+end;
 
 (**
 
@@ -402,20 +329,12 @@ End;
   @param   EditWindow as an INTAEditWindow as a constant
 
 **)
-Procedure TDGHNotificationsEditorNotifier.WindowActivated(Const EditWindow
-  : INTAEditWindow);
-
-ResourceString
+procedure TDGHNotificationsEditorNotifier.WindowActivated(const EditWindow: INTAEditWindow);
+resourcestring
   strWindowActiviated = '.WindowActiviated = EditWindow: %s.%s';
-
-Begin
-  DoNotification(
-    Format(strWindowActiviated, [
-      GetEditWindowFormClassName(EditWindow),
-      GetEditWindowFormCaption(EditWindow)]
-    )
-  );
-End;
+begin
+  DoNotification(Format(strWindowActiviated, [GetEditWindowFormClassName(EditWindow), GetEditWindowFormCaption(EditWindow)]));
+end;
 
 (**
 
@@ -426,31 +345,19 @@ End;
            commands here and return True in Handled to prevent the origin command processing.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   EditWindow as an INTAEditWindow as a constant
   @param   Command    as an Integer
   @param   Param      as an Integer
   @param   Handled    as a Boolean as a reference
 
 **)
-Procedure TDGHNotificationsEditorNotifier.WindowCommand(Const EditWindow: INTAEditWindow;
-  Command, Param: Integer; Var Handled: Boolean);
-
-ResourceString
+procedure TDGHNotificationsEditorNotifier.WindowCommand(const EditWindow: INTAEditWindow; Command, Param: Integer; var Handled: Boolean);
+resourcestring
   strWindowCommand = '.WindowCommand = EditWindow: %s.%s, Command: %d, Param: %d, Handled: %s';
-
-Begin
-  DoNotification(
-    Format(
-      strWindowCommand, [
-        GetEditWindowFormClassName(EditWindow),
-        GetEditWindowFormCaption(EditWindow),
-        Command,
-        Param,
-        strBoolean[Handled]
-      ])
-  );
-End;
+begin
+  DoNotification(Format(strWindowCommand, [GetEditWindowFormClassName(EditWindow), GetEditWindowFormCaption(EditWindow), Command, Param, strBoolean[Handled]]));
+end;
 
 (**
 
@@ -460,27 +367,17 @@ End;
   @postcon Provides access to the editor window and the operation (Insert or Remove).
 
   @nocheck MissingCONSTInParam
-  
+
   @param   EditWindow as an INTAEditWindow as a constant
   @param   Operation  as a TOperation
 
 **)
-Procedure TDGHNotificationsEditorNotifier.WindowNotification(Const EditWindow
-  : INTAEditWindow; Operation: TOperation);
-
-ResourceString
+procedure TDGHNotificationsEditorNotifier.WindowNotification(const EditWindow: INTAEditWindow; Operation: TOperation);
+resourcestring
   strWindowNotification = '.WindowNotification = EditWindow: %s.%s, Operation: %s';
-
-Begin
-  DoNotification(
-    Format(
-      strWindowNotification, [
-        GetEditWindowFormClassName(EditWindow),
-        GetEditWindowFormCaption(EditWindow),
-        GetEnumName(TypeInfo(TOperation), Ord(Operation))
-      ])
-  );
-End;
+begin
+  DoNotification(Format(strWindowNotification, [GetEditWindowFormClassName(EditWindow), GetEditWindowFormCaption(EditWindow), GetEnumName(TypeInfo(TOperation), Ord(Operation))]));
+end;
 
 (**
 
@@ -491,28 +388,18 @@ End;
            change.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   EditWindow        as an INTAEditWindow as a constant
   @param   Show              as a Boolean
   @param   LoadedFromDesktop as a Boolean
 
 **)
-Procedure TDGHNotificationsEditorNotifier.WindowShow(Const EditWindow: INTAEditWindow;
-  Show, LoadedFromDesktop: Boolean);
-
-ResourceString
+procedure TDGHNotificationsEditorNotifier.WindowShow(const EditWindow: INTAEditWindow; Show, LoadedFromDesktop: Boolean);
+resourcestring
   strWindowShow = '.WindowShow = EditWindow: %s.%s, Show: %s, LoadedFromDesktop: %s';
+begin
+  DoNotification(Format(strWindowShow, [GetEditWindowFormClassName(EditWindow), GetEditWindowFormCaption(EditWindow), strBoolean[Show], strBoolean[LoadedFromDesktop]]));
+end;
 
-Begin
-  DoNotification(
-    Format(
-      strWindowShow, [
-        GetEditWindowFormClassName(EditWindow),
-        GetEditWindowFormCaption(EditWindow),
-        strBoolean[Show],
-        strBoolean[LoadedFromDesktop]
-      ])
-  );
-End;
+end.
 
-End.

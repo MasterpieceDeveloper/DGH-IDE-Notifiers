@@ -12,7 +12,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -29,33 +29,31 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.MessageNotifier;
+unit DGHIDENotifiers.MessageNotifier;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI,
   DGHIDENotifiers.Types,
   Menus;
 
-Type
+type
   (** This class implements notifiers for capturing Message information. **)
-  TDGHIDENotificationsMessageNotifier = Class(TDGHNotifierObject, IOTAMessageNotifier,
-    INTAMessageNotifier)
-  Strict Private
-  Strict Protected
-  Public
+  TDGHIDENotificationsMessageNotifier = class(TDGHNotifierObject, IOTAMessageNotifier, INTAMessageNotifier)
+  strict private
+  strict protected
+  public
     // IOTAMessageNotifier
-    Procedure MessageGroupAdded(Const Group: IOTAMessageGroup);
-    Procedure MessageGroupDeleted(Const Group: IOTAMessageGroup);
+    procedure MessageGroupAdded(const Group: IOTAMessageGroup);
+    procedure MessageGroupDeleted(const Group: IOTAMessageGroup);
     // INTAMessageNotifier
-    Procedure MessageViewMenuShown(Menu: TPopupMenu; Const MessageGroup: IOTAMessageGroup;
-      LineRef: Pointer);
-  End;
+    procedure MessageViewMenuShown(Menu: TPopupMenu; const MessageGroup: IOTAMessageGroup; LineRef: Pointer);
+  end;
 
-Implementation
+implementation
 
-Uses
+uses
   SysUtils;
 
 (**
@@ -66,21 +64,19 @@ Uses
   @postcon The message group name is returned.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Group as an IOTAMessageGroup
   @return  a String
 
 **)
-Function GetMessageGroupName(Group : IOTAMessageGroup) : String;
-
-ResourceString
+function GetMessageGroupName(Group: IOTAMessageGroup): string;
+resourcestring
   strNoGroup = '(no group)';
-
-Begin
+begin
   Result := strNoGroup;
-  If Group <> Nil Then
+  if Group <> Nil then
     Result := Group.Name;
-End;
+end;
 
 { TDGHIDENotificationsMessageNotifier }
 
@@ -94,15 +90,12 @@ End;
   @param   Group as an IOTAMessageGroup as a constant
 
 **)
-Procedure TDGHIDENotificationsMessageNotifier.MessageGroupAdded(
-  Const Group: IOTAMessageGroup);
-
-ResourceString
+procedure TDGHIDENotificationsMessageNotifier.MessageGroupAdded(const Group: IOTAMessageGroup);
+resourcestring
   strMessageGroupAdded = '.MessageGroupAdded = Group: %s';
-
-Begin
+begin
   DoNotification(Format(strMessageGroupAdded, [GetMessageGroupName(Group)]));
-End;
+end;
 
 (**
 
@@ -114,15 +107,12 @@ End;
   @param   Group as an IOTAMessageGroup as a constant
 
 **)
-Procedure TDGHIDENotificationsMessageNotifier.MessageGroupDeleted(
-  Const Group: IOTAMessageGroup);
-
-ResourceString
+procedure TDGHIDENotificationsMessageNotifier.MessageGroupDeleted(const Group: IOTAMessageGroup);
+resourcestring
   strMessageGroupDeleted = '.MessageGroupDeleted = Group: %s';
-
-Begin
+begin
   DoNotification(Format(strMessageGroupDeleted, [GetMessageGroupName(Group)]));
-End;
+end;
 
 (**
 
@@ -133,24 +123,18 @@ End;
            message group.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Menu         as a TPopupMenu
   @param   MessageGroup as an IOTAMessageGroup as a constant
   @param   LineRef      as a Pointer
 
 **)
-Procedure TDGHIDENotificationsMessageNotifier.MessageViewMenuShown(Menu: TPopupMenu;
-  Const MessageGroup: IOTAMessageGroup; LineRef: Pointer);
-
-ResourceString
+procedure TDGHIDENotificationsMessageNotifier.MessageViewMenuShown(Menu: TPopupMenu; const MessageGroup: IOTAMessageGroup; LineRef: Pointer);
+resourcestring
   strMessageViewMenuShown = '.MessageViewMenuShown = Menu: %s, MessageGroup: %s, LineRef: %p';
+begin
+  DoNotification(Format(strMessageViewMenuShown, [Menu.Name, GetMessageGroupName(MessageGroup), LineRef]));
+end;
 
-Begin
-  DoNotification(Format(strMessageViewMenuShown, [
-    Menu.Name,
-    GetMessageGroupName(MessageGroup),
-    LineRef
-  ]));
-End;
+end.
 
-End.

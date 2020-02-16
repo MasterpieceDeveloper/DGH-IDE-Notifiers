@@ -11,7 +11,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -28,17 +28,17 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.SplashScreen;
+unit DGHIDENotifiers.SplashScreen;
 
-Interface
+interface
 
 {$INCLUDE CompilerDefinitions.inc}
 
-  Procedure AddSplashScreen;
+procedure AddSplashScreen;
 
-Implementation
+implementation
 
-Uses
+uses
   {$IFDEF DEBUG}
   CodeSiteLogging,
   {$ENDIF}
@@ -56,24 +56,23 @@ Uses
   @postcon An entry is added to the splash screen for this plugin.
 
 **)
-Procedure AddSplashScreen;
-
-Const
+procedure AddSplashScreen;
+const
   {$IFDEF D2007}
   strDGHIDENotificationsSplashScreenBitMap = 'DGHIDENotificationsSplashScreenBitMap24x24';
   {$ELSE}
   strDGHIDENotificationsSplashScreenBitMap = 'DGHIDENotificationsSplashScreenBitMap48x48';
   {$ENDIF}
-
-Var
-  iMajor : Integer;
-  iMinor : Integer;
-  iBugFix : Integer;
-  iBuild : Integer;
-  bmSplashScreen : HBITMAP;
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod('AddSplashScreen', tmoTiming);{$ENDIF}
+var
+  iMajor: Integer;
+  iMinor: Integer;
+  iBugFix: Integer;
+  iBuild: Integer;
+  bmSplashScreen: HBITMAP;
+begin
+  {$IFDEF CODESITE}
+  CodeSite.TraceMethod('AddSplashScreen', tmoTiming);
+  {$ENDIF}
   {$IFDEF D2005}
   BuildNumber(iMajor, iMinor, iBugFix, iBuild);
   bmSplashScreen := LoadBitmap(hInstance, strDGHIDENotificationsSplashScreenBitMap);
@@ -85,7 +84,7 @@ Begin
     Format(strSplashScreenBuild, [iMajor, iMinor, iBugfix, iBuild]), ''
     );
   {$ENDIF}
-End;
+end;
 
-End.
+end.
 

@@ -1,19 +1,19 @@
 (**
-  
+
   This module contains a class which represents a form for displaying information about the application.
 
   @Author  David Hoyle
   @Version 1.074
   @Date    09 Feb 2020
-  
-**)
-Unit DGHIDENotifiers.AboutDlg;
 
-Interface
+**)
+unit DGHIDENotifiers.AboutDlg;
+
+interface
 
 {$INCLUDE CompilerDefinitions.inc}
 
-Uses
+uses
   Winapi.Windows,
   Winapi.Messages,
   System.SysUtils,
@@ -25,11 +25,11 @@ Uses
   Vcl.Dialogs,
   Vcl.StdCtrls,
   Vcl.Buttons,
-  Vcl.ExtCtrls;
+  Vcl.ExtCtrls, System.ImageList, Vcl.ImgList;
 
-Type
+type
   (** A class to represent the about form. **)
-  TfrmDINAboutDlg = Class(TForm)
+  TfrmDINAboutDlg = class(TForm)
     pnlButtons: TPanel;
     lblInformation: TMemo;
     lblBuildDate: TLabel;
@@ -39,13 +39,13 @@ Type
     btnOK: TButton;
     ilButtons: TImageList;
     procedure FormCreate(Sender: TObject);
-  Strict Private
-  Strict Protected
-  Public
-    Class Procedure Execute;
-  End;
+  strict private
+  strict protected
+  public
+    class procedure Execute;
+  end;
 
-Implementation
+implementation
 
 uses
   ToolsAPI,
@@ -61,19 +61,17 @@ uses
   @postcon The dialogue is displayed in a modal state.
 
 **)
-Class Procedure TfrmDINAboutDlg.Execute;
-
-Var
+class procedure TfrmDINAboutDlg.Execute;
+var
   F: TfrmDINAboutDlg;
-
-Begin
+begin
   F := TfrmDINAboutDlg.Create(Application.MainForm);
-  Try
+  try
     F.ShowModal;
-  Finally
+  finally
     F.Free;
-  End;
-End;
+  end;
+end;
 
 (**
 
@@ -85,58 +83,41 @@ End;
   @param   Sender as a TObject
 
 **)
-Procedure TfrmDINAboutDlg.FormCreate(Sender: TObject);
-
-Type
-  TDINVerInfo = Record
-    FMajor, FMinor, FBugFix, FBuild : Integer;
-  End;
-
-ResourceString
+procedure TfrmDINAboutDlg.FormCreate(Sender: TObject);
+type
+  TDINVerInfo = record
+    FMajor, FMinor, FBugFix, FBuild: Integer;
+  end;
+resourcestring
   strBuildDate = 'Build Date: %s';
   {$IFDEF DEBUG}
   strDINCaption = 'DGH IDE Notifiers %d.%d%s (DEBUG Build %d.%d.%d.%d)';
   {$ELSE}
   strDINCaption = 'DGH IDE Notifiers %d.%d%s (Build %d.%d.%d.%d)';
   {$ENDIF}
-
-Const
+const
   strDateFmt = 'ddd dd mmm yyyy @ hh:nn';
-
-Var
-  dtDateTime : TDateTime;
+var
+  dtDateTime: TDateTime;
   recVerInfo: TDINVerInfo;
   {$IFDEF DXE102}
-  ITS : IOTAIDEThemingServices250;
+  ITS: IOTAIDEThemingServices250;
   {$ENDIF DXE102}
-  
-Begin
+
+begin
   {$IFDEF DXE102}
-  If Supports(BorlandIDEServices, IOTAIDEThemingServices250, ITS) Then
-    Begin
-      ITS.RegisterFormClass(TfrmDINAboutDlg);
-      If ITS.IDEThemingEnabled Then
-        ITS.ApplyTheme(Self);
-    End;
+  if Supports(BorlandIDEServices, IOTAIDEThemingServices250, ITS) then
+  begin
+    ITS.RegisterFormClass(TfrmDINAboutDlg);
+    if ITS.IDEThemingEnabled then
+      ITS.ApplyTheme(Self);
+  end;
   {$ENDIF DXE102}
   FileAge(ParamStr(0), dtDateTime);
-  lblBuildDate.Caption := Format(
-    strBuildDate, [
-      FormatDateTime(strDateFmt, dtDateTime)
-    ]
-  );
+  lblBuildDate.Caption := Format(strBuildDate, [FormatDateTime(strDateFmt, dtDateTime)]);
   BuildNumber(recVerInfo.FMajor, recVerInfo.FMinor, recVerInfo.FBugFix, recVerInfo.FBuild);
-  lblBuild.Caption := Format(strDINCaption,
-    [
-      recVerInfo.FMajor,
-      recVerInfo.FMinor,
-      strRevision[recVerInfo.FBugFix + 1],
-      recVerInfo.FMajor,
-      recVerInfo.FMinor,
-      recVerInfo.FBugFix,
-      recVerInfo.FBuild
-    ]
-  );
-End;
+  lblBuild.Caption := Format(strDINCaption, [recVerInfo.FMajor, recVerInfo.FMinor, strRevision[recVerInfo.FBugFix + 1], recVerInfo.FMajor, recVerInfo.FMinor, recVerInfo.FBugFix, recVerInfo.FBuild]);
+end;
 
-End.
+end.
+

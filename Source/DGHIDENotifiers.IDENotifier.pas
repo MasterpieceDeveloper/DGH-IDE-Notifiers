@@ -12,7 +12,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -29,11 +29,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.IDENotifier;
+unit DGHIDENotifiers.IDENotifier;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI,
   DGHIDENotifiers.Interfaces,
   DGHIDENotifiers.Types,
@@ -42,52 +42,46 @@ Uses
 
 {$INCLUDE 'CompilerDefinitions.inc'}
 
-Type
+type
   (** This class implements the IDENotifier interfaces. **)
-  TDGHNotificationsIDENotifier = Class(TDGHNotifierObject, IOTAIDENotifier,
-    IOTAIDENotifier50, IOTAIDENotifier80)
-  Strict Private
-    FModuleNotifiers         : IDINModuleNotifierList;
-    FProjectNotifiers        : IDINModuleNotifierList;
-    FProjectCompileNotifiers : IDINModuleNotifierList;
-    FSourceEditorNotifiers   : IDINModuleNotifierList;
-    FFormEditorNotifiers     : IDINModuleNotifierList;
-  {$IFDEF D2010} Strict {$ENDIF} Protected
+  TDGHNotificationsIDENotifier = class(TDGHNotifierObject, IOTAIDENotifier, IOTAIDENotifier50, IOTAIDENotifier80)
+  strict private
+    FModuleNotifiers: IDINModuleNotifierList;
+    FProjectNotifiers: IDINModuleNotifierList;
+    FProjectCompileNotifiers: IDINModuleNotifierList;
+    FSourceEditorNotifiers: IDINModuleNotifierList;
+    FFormEditorNotifiers: IDINModuleNotifierList;
+  {$IFDEF D2010}   strict {$ENDIF} protected
     // IOTAIDENotifier
-    Procedure FileNotification(NotifyCode: TOTAFileNotification;
-      Const FileName: String; Var Cancel: Boolean);
+    procedure FileNotification(NotifyCode: TOTAFileNotification; const FileName: string; var Cancel: Boolean);
     // IOTAIDENotifier
-    Procedure BeforeCompile(Const Project: IOTAProject; Var Cancel: Boolean); Overload;
-    Procedure AfterCompile(Succeeded: Boolean); Overload;
+    procedure BeforeCompile(const Project: IOTAProject; var Cancel: Boolean); overload;
+    procedure AfterCompile(Succeeded: Boolean); overload;
     // IOTAIDENotifier50
-    Procedure BeforeCompile(Const Project: IOTAProject; IsCodeInsight: Boolean;
-      Var Cancel: Boolean); Overload;
-    Procedure AfterCompile(Succeeded: Boolean; IsCodeInsight: Boolean); Overload;
+    procedure BeforeCompile(const Project: IOTAProject; IsCodeInsight: Boolean; var Cancel: Boolean); overload;
+    procedure AfterCompile(Succeeded: Boolean; IsCodeInsight: Boolean); overload;
     // IOTAIDENotifier80
-    Procedure AfterCompile(Const Project: IOTAProject; Succeeded:
-      Boolean; IsCodeInsight: Boolean); Overload;
+    procedure AfterCompile(const Project: IOTAProject; Succeeded: Boolean; IsCodeInsight: Boolean); overload;
     // General Methods
-    Procedure InstallModuleNotifier(Const M: IOTAModule; Const FileName: String);
-    Procedure UninstallModuleNotifier(Const M: IOTAModule; Const FileName: String);
-    Procedure InstallProjectNotifier(Const M: IOTAModule; Const FileName: String);
-    Procedure UninstallProjectNotifier(Const M: IOTAModule; Const FileName: String);
+    procedure InstallModuleNotifier(const M: IOTAModule; const FileName: string);
+    procedure UninstallModuleNotifier(const M: IOTAModule; const FileName: string);
+    procedure InstallProjectNotifier(const M: IOTAModule; const FileName: string);
+    procedure UninstallProjectNotifier(const M: IOTAModule; const FileName: string);
     {$IFDEF DXE00}
-    Procedure InstallProjectCompileNotifier(Const P: IOTAProject; Const FileName: String);
-    Procedure UninstallProjectCompileNotifier(Const P: IOTAProject; Const FileName: String);
+    procedure InstallProjectCompileNotifier(const P: IOTAProject; const FileName: string);
+    procedure UninstallProjectCompileNotifier(const P: IOTAProject; const FileName: string);
     {$ENDIF DXE00}
-    Procedure RenameModule(Const strOldFilename, strNewFilename : String);
-    Procedure InstallEditorNotifiers(Const M : IOTAModule);
-    Procedure UninstallEditorNotifiers(Const M : IOTAModule);
-  Public
-    Constructor Create(
-      Const strNotifier, strFileName : String;
-      Const iNotification : TDGHIDENotification); Override;
-    Destructor Destroy; Override;
-  End;
+    procedure RenameModule(const strOldFilename, strNewFilename: string);
+    procedure InstallEditorNotifiers(const M: IOTAModule);
+    procedure UninstallEditorNotifiers(const M: IOTAModule);
+  public
+    constructor Create(const strNotifier, strFileName: string; const iNotification: TDGHIDENotification); override;
+    destructor Destroy; override;
+  end;
 
-Implementation
+implementation
 
-Uses
+uses
   {$IFDEF DEBUG}
   CodeSiteLogging,
   {$ENDIF}
@@ -107,24 +101,16 @@ Uses
   @postcon Provides access whether the compilation was successful.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Succeeded     as a Boolean
 
 **)
-Procedure TDGHNotificationsIDENotifier.AfterCompile(Succeeded: Boolean);
-
-ResourceString
+procedure TDGHNotificationsIDENotifier.AfterCompile(Succeeded: Boolean);
+resourcestring
   strAfterCompile = '.AfterCompile = Succeeded: %s';
-
-Begin
-  DoNotification(
-    Format(
-    strAfterCompile,
-      [
-        strBoolean[Succeeded]
-      ])
-  );
-End;
+begin
+  DoNotification(Format(strAfterCompile, [strBoolean[Succeeded]]));
+end;
 
 (**
 
@@ -135,26 +121,17 @@ End;
            CodeInsight.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Succeeded     as a Boolean
   @param   IsCodeInsight as a Boolean
 
 **)
-Procedure TDGHNotificationsIDENotifier.AfterCompile(Succeeded, IsCodeInsight: Boolean);
-
-ResourceString
+procedure TDGHNotificationsIDENotifier.AfterCompile(Succeeded, IsCodeInsight: Boolean);
+resourcestring
   strAfterCompile = '50.AfterCompile = Succeeded: %s, IsCodeInsight: %s';
-
-Begin
-  DoNotification(
-    Format(
-    strAfterCompile,
-      [
-        strBoolean[Succeeded],
-        strBoolean[IsCodeInsight]
-      ])
-  );
-End;
+begin
+  DoNotification(Format(strAfterCompile, [strBoolean[Succeeded], strBoolean[IsCodeInsight]]));
+end;
 
 (**
 
@@ -165,29 +142,18 @@ End;
            invoked by CodeInsight.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Project       as an IOTAProject as a constant
   @param   Succeeded     as a Boolean
   @param   IsCodeInsight as a Boolean
 
 **)
-Procedure TDGHNotificationsIDENotifier.AfterCompile(Const Project: IOTAProject;
-  Succeeded, IsCodeInsight: Boolean);
-
-ResourceString
+procedure TDGHNotificationsIDENotifier.AfterCompile(const Project: IOTAProject; Succeeded, IsCodeInsight: Boolean);
+resourcestring
   strAfterCompile = '80.AfterCompile = Project: %s, Succeeded: %s, IsCodeInsight: %s';
-
-Begin
-  DoNotification(
-    Format(
-    strAfterCompile,
-      [
-        GetProjectFileName(Project),
-        strBoolean[Succeeded],
-        strBoolean[IsCodeInsight]
-      ])
-  );
-End;
+begin
+  DoNotification(Format(strAfterCompile, [GetProjectFileName(Project), strBoolean[Succeeded], strBoolean[IsCodeInsight]]));
+end;
 
 (**
 
@@ -198,29 +164,18 @@ End;
            CodeInsight.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   Project       as an IOTAProject as a constant
   @param   IsCodeInsight as a Boolean
   @param   Cancel        as a Boolean as a reference
 
 **)
-Procedure TDGHNotificationsIDENotifier.BeforeCompile(Const Project: IOTAProject;
-  IsCodeInsight: Boolean; Var Cancel: Boolean);
-
-ResourceString
+procedure TDGHNotificationsIDENotifier.BeforeCompile(const Project: IOTAProject; IsCodeInsight: Boolean; var Cancel: Boolean);
+resourcestring
   strBeforeCompile = '50.BeforeCompile = Project: %s, IsCodeInsight: %s, Cancel: %s';
-
-Begin
-  DoNotification(
-    Format(
-    strBeforeCompile,
-      [
-        GetProjectFileName(Project),
-        strBoolean[IsCodeInsight],
-        strBoolean[Cancel]
-      ])
-  );
-End;
+begin
+  DoNotification(Format(strBeforeCompile, [GetProjectFileName(Project), strBoolean[IsCodeInsight], strBoolean[Cancel]]));
+end;
 
 (**
 
@@ -233,22 +188,12 @@ End;
   @param   Cancel        as a Boolean as a reference
 
 **)
-Procedure TDGHNotificationsIDENotifier.BeforeCompile(Const Project: IOTAProject;
-  Var Cancel: Boolean);
-
-ResourceString
+procedure TDGHNotificationsIDENotifier.BeforeCompile(const Project: IOTAProject; var Cancel: Boolean);
+resourcestring
   strBeforeCompile = '.BeforeCompile = Project: %s, Cancel: %s';
-
-Begin
-  DoNotification(
-    Format(
-    strBeforeCompile,
-      [
-        GetProjectFileName(Project),
-        strBoolean[Cancel]
-      ])
-  );
-End;
+begin
+  DoNotification(Format(strBeforeCompile, [GetProjectFileName(Project), strBoolean[Cancel]]));
+end;
 
 (**
 
@@ -262,18 +207,16 @@ End;
   @param   iNotification as a TDGHIDENotification as a constant
 
 **)
-Constructor TDGHNotificationsIDENotifier.Create(Const strNotifier, strFileName : String;
-  Const iNotification : TDGHIDENotification);
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod('TDGHNotificationsIDENotifier.Create', tmoTiming);{$ENDIF}
-  Inherited Create(strNotifier, strFileName, iNotification);
+constructor TDGHNotificationsIDENotifier.Create(const strNotifier, strFileName: string; const iNotification: TDGHIDENotification);
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod('TDGHNotificationsIDENotifier.Create', tmoTiming); {$ENDIF}
+  inherited Create(strNotifier, strFileName, iNotification);
   FModuleNotifiers := TDINModuleNotifierList.Create;
   FProjectNotifiers := TDINModuleNotifierList.Create;
   FProjectCompileNotifiers := TDINModuleNotifierList.Create;
   FSourceEditorNotifiers := TDINModuleNotifierList.Create;
   FFormEditorNotifiers := TDINModuleNotifierList.Create;
-End;
+end;
 
 (**
 
@@ -283,12 +226,11 @@ End;
   @postcon Closes any remaining module notifiers and frees the memory.
 
 **)
-Destructor TDGHNotificationsIDENotifier.Destroy;
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod('TDGHNotificationsIDENotifier.Destroy', tmoTiming);{$ENDIF}
-  Inherited Destroy;
-End;
+destructor TDGHNotificationsIDENotifier.Destroy;
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod('TDGHNotificationsIDENotifier.Destroy', tmoTiming); {$ENDIF}
+  inherited Destroy;
+end;
 
 (**
 
@@ -298,76 +240,54 @@ End;
   @postcon Provides access to the Filename and the operation that occurred.
 
   @nocheck MissingCONSTInParam
-  
+
   @param   NotifyCode as a TOTAFileNotification
   @param   FileName   as a String as a constant
   @param   Cancel     as a Boolean as a reference
 
 **)
-Procedure TDGHNotificationsIDENotifier.FileNotification(NotifyCode: TOTAFileNotification;
-  Const FileName: String; Var Cancel: Boolean);
-
-Const
-  strNotifyCode : Array[Low(TOTAFileNotification)..High(TOTAFileNotification)] Of String = (
-    'ofnFileOpening',
-    'ofnFileOpened',
-    'ofnFileClosing',
-    'ofnDefaultDesktopLoad',
-    'ofnDefaultDesktopSave',
-    'ofnProjectDesktopLoad',
-    'ofnProjectDesktopSave',
-    'ofnPackageInstalled',
-    'ofnPackageUninstalled',
-    'ofnActiveProjectChanged' {$IFDEF DXE80},
-    'ofnProjectOpenedFromTemplate' {$ENDIF}
-  );
-
-ResourceString
+procedure TDGHNotificationsIDENotifier.FileNotification(NotifyCode: TOTAFileNotification; const FileName: string; var Cancel: Boolean);
+const
+  strNotifyCode: array[Low(TOTAFileNotification)..High(TOTAFileNotification)] of string = ('ofnFileOpening', 'ofnFileOpened', 'ofnFileClosing', 'ofnDefaultDesktopLoad', 'ofnDefaultDesktopSave', 'ofnProjectDesktopLoad', 'ofnProjectDesktopSave', 'ofnPackageInstalled', 'ofnPackageUninstalled', 'ofnActiveProjectChanged' {$IFDEF DXE80}, 'ofnProjectOpenedFromTemplate' {$ENDIF}
+    );
+resourcestring
   strFileNotificationNotify = '.FileNotification = NotifyCode: %s, FileName: %s, Cancel: %s';
-
-Var
-  MS : IOTAModuleServices;
-  M : IOTAModule;
-  P : IOTAProject;
-
-Begin
-  DoNotification(
-    Format(
-    strFileNotificationNotify,
-      [
-        strNotifyCode[NotifyCode],
-        ExtractFileName(FileName),
-        strBoolean[Cancel]
-      ])
-  );
-  If Not Cancel And Supports(BorlandIDEServices, IOTAModuleServices, MS) Then
-    Case NotifyCode Of
+var
+  MS: IOTAModuleServices;
+  M: IOTAModule;
+  P: IOTAProject;
+begin
+  DoNotification(Format(strFileNotificationNotify, [strNotifyCode[NotifyCode], ExtractFileName(FileName), strBoolean[Cancel]]));
+  if not Cancel and Supports(BorlandIDEServices, IOTAModuleServices, MS) then
+    case NotifyCode of
       ofnFileOpened:
-        Begin
+        begin
           M := MS.OpenModule(FileName);
-          If Supports(M, IOTAProject, P) Then
-            Begin
-              InstallProjectNotifier(M, FileName);
-              InstallProjectCompileNotifier(P, FileName);
-            End Else
-            Begin
-              InstallModuleNotifier(M, FileName);
-            End;
-        End;
+          if Supports(M, IOTAProject, P) then
+          begin
+            InstallProjectNotifier(M, FileName);
+            InstallProjectCompileNotifier(P, FileName);
+          end
+          else
+          begin
+            InstallModuleNotifier(M, FileName);
+          end;
+        end;
       ofnFileClosing:
-        Begin
+        begin
           M := MS.OpenModule(FileName);
-          If Supports(M, IOTAProject, P) Then
-            Begin
-              UninstallProjectNotifier(M, Filename);
-              UninstallProjectCompileNotifier(P, Filename);
-            End Else
-            Begin
-              UninstallModuleNotifier(M, Filename);
-            End;
-        End;
-    End;
-End;
+          if Supports(M, IOTAProject, P) then
+          begin
+            UninstallProjectNotifier(M, FileName);
+            UninstallProjectCompileNotifier(P, FileName);
+          end
+          else
+          begin
+            UninstallModuleNotifier(M, FileName);
+          end;
+        end;
+    end;
+end;
 
 (**
 
@@ -380,38 +300,26 @@ End;
   @param   M as an IOTAModule as a constant
 
 **)
-Procedure TDGHNotificationsIDENotifier.InstallEditorNotifiers(Const M: IOTAModule);
-
-Const
+procedure TDGHNotificationsIDENotifier.InstallEditorNotifiers(const M: IOTAModule);
+const
   strIOTAEditViewNotifier = 'IOTAEditViewNotifier';
   strIOTAFormNotifier = 'IOTAFormNotifier';
-
-Var
-  i : Integer;
+var
+  i: Integer;
   E: IOTAEditor;
-  SE : IOTASourceEditor;
-  FE : IOTAFormEditor;
-  
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod(Self, 'InstallEditorNotifier', tmoTiming);{$ENDIF}
-  For i := 0 To M.GetModuleFileCount - 1 Do
-    Begin
-      E := M.GetModuleFileEditor(i);
-      If Supports(E, IOTASourceEditor, SE) Then
-        FSourceEditorNotifiers.Add(M.FileName, SE.AddNotifier(
-          TDINSourceEditorNotifier.Create(
-            strIOTAEditViewNotifier,
-            M.FileName,
-            dinSourceEditorNotifier,
-            SE
-          )
-        ));
-      If Supports(E, IOTAFormEditor, FE) Then
-        FFormEditorNotifiers.Add(M.FileName, FE.AddNotifier(
-          TDINFormNotifier.Create(strIOTAFormNotifier, M.FileName, dinFormNotifier)
-        ));
-    End;
-End;
+  SE: IOTASourceEditor;
+  FE: IOTAFormEditor;
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod(Self, 'InstallEditorNotifier', tmoTiming); {$ENDIF}
+  for i := 0 to M.GetModuleFileCount - 1 do
+  begin
+    E := M.GetModuleFileEditor(i);
+    if Supports(E, IOTASourceEditor, SE) then
+      FSourceEditorNotifiers.Add(M.FileName, SE.AddNotifier(TDINSourceEditorNotifier.Create(strIOTAEditViewNotifier, M.FileName, dinSourceEditorNotifier, SE)));
+    if Supports(E, IOTAFormEditor, FE) then
+      FFormEditorNotifiers.Add(M.FileName, FE.AddNotifier(TDINFormNotifier.Create(strIOTAFormNotifier, M.FileName, dinFormNotifier)));
+  end;
+end;
 
 (**
 
@@ -425,25 +333,16 @@ End;
   @param   FileName as a String as a constant
 
 **)
-Procedure TDGHNotificationsIDENotifier.InstallModuleNotifier(Const M: IOTAModule; Const FileName:
-  String);
-
-Const
+procedure TDGHNotificationsIDENotifier.InstallModuleNotifier(const M: IOTAModule; const FileName: string);
+const
   strIOTAModuleNotifier = 'IOTAModuleNotifier';
-
-Var
+var
   MN: IOTAModuleNotifier;
-  
-Begin
-  MN := TDNModuleNotifier.Create(
-    strIOTAModuleNotifier,
-    FileName,
-    dinModuleNotifier,
-    RenameModule
-  );
+begin
+  MN := TDNModuleNotifier.Create(strIOTAModuleNotifier, FileName, dinModuleNotifier, RenameModule);
   FModuleNotifiers.Add(FileName, M.AddNotifier(MN));
   InstallEditorNotifiers(M);
-End;
+end;
 
 {$IFDEF DXE00}
 (**
@@ -458,26 +357,18 @@ End;
   @param   FileName as a String as a constant
 
 **)
-Procedure TDGHNotificationsIDENotifier.InstallProjectCompileNotifier(Const P: IOTAProject;
-  Const FileName: String);
-  
-Const
+procedure TDGHNotificationsIDENotifier.InstallProjectCompileNotifier(const P: IOTAProject; const FileName: string);
+const
   strIOTAProjectCompileNotifier = 'IOTAProjectCompileNotifier';
-  
-Var
+var
   PCN: IOTAProjectCompileNotifier;
-
-Begin
-  If Assigned(P.ProjectBuilder) Then
-    Begin
-      PCN := TDNProjectCompileNotifier.Create(
-        strIOTAProjectCompileNotifier,
-        FileName,
-        dinProjectCompileNotifier
-      );
-      FProjectCompileNotifiers.Add(FileName, P.ProjectBuilder.AddCompileNotifier(PCN));
-    End;
-End;
+begin
+  if Assigned(P.ProjectBuilder) then
+  begin
+    PCN := TDNProjectCompileNotifier.Create(strIOTAProjectCompileNotifier, FileName, dinProjectCompileNotifier);
+    FProjectCompileNotifiers.Add(FileName, P.ProjectBuilder.AddCompileNotifier(PCN));
+  end;
+end;
 {$ENDIF DXE00}
 
 (**
@@ -492,24 +383,16 @@ End;
   @param   FileName as a String as a constant
 
 **)
-Procedure TDGHNotificationsIDENotifier.InstallProjectNotifier(Const M: IOTAModule; Const FileName:
-  String);
 
-Const
+procedure TDGHNotificationsIDENotifier.InstallProjectNotifier(const M: IOTAModule; const FileName: string);
+const
   strIOTAProjectNotifier = 'IOTAProjectNotifier';
-  
-Var
+var
   MN: IOTAModuleNotifier;
-  
-Begin
-  MN := TDNProjectNotifier.Create(
-    strIOTAProjectNotifier,
-    FileName,
-    dinProjectNotifier,
-    RenameModule
-  );
+begin
+  MN := TDNProjectNotifier.Create(strIOTAProjectNotifier, FileName, dinProjectNotifier, RenameModule);
   FProjectNotifiers.Add(FileName, M.AddNotifier(MN));
-End;
+end;
 
 (**
 
@@ -522,15 +405,14 @@ End;
   @param   strNewFilename as a String as a constant
 
 **)
-Procedure TDGHNotificationsIDENotifier.RenameModule(Const strOldFilename, strNewFilename: String);
-
-Begin
+procedure TDGHNotificationsIDENotifier.RenameModule(const strOldFilename, strNewFilename: string);
+begin
   FModuleNotifiers.Rename(strOldFilename, strNewFilename);
   FProjectNotifiers.Rename(strOldFilename, strNewFilename);
   FProjectCompileNotifiers.Rename(strOldFilename, strNewFilename);
   FSourceEditorNotifiers.Rename(strOldFilename, strNewFilename);
   FFormEditorNotifiers.Rename(strOldFilename, strNewFilename);
-End;
+end;
 
 (**
 
@@ -542,34 +424,32 @@ End;
   @param   M as an IOTAModule as a constant
 
 **)
-Procedure TDGHNotificationsIDENotifier.UninstallEditorNotifiers(Const M: IOTAModule);
-
-Var
+procedure TDGHNotificationsIDENotifier.UninstallEditorNotifiers(const M: IOTAModule);
+var
   i: Integer;
   E: IOTAEditor;
-  SE : IOTASourceEditor;
-  FE : IOTAFormEditor;
+  SE: IOTASourceEditor;
+  FE: IOTAFormEditor;
   iIndex: Integer;
-
-Begin
-  {$IFDEF CODESITE}CodeSite.TraceMethod(Self, 'UninstallEditorNotifier', tmoTiming);{$ENDIF}
-  For i := 0 To M.GetModuleFileCount - 1 Do
-    Begin
-      E := M.GetModuleFileEditor(i);
-      If Supports(E, IOTASourceEditor, SE) Then
-        Begin
-          iIndex := FSourceEditorNotifiers.Remove(M.FileName);
-          If iIndex > -1 Then
-            SE.RemoveNotifier(iIndex);
-        End;
-      If Supports(E, IOTAFormEditor, FE) Then
-        Begin
-          iIndex := FFormEditorNotifiers.Remove(M.FileName);
-          If iIndex > -1 Then
-            FE.RemoveNotifier(iIndex);
-        End;
-    End;
-End;
+begin
+  {$IFDEF CODESITE}  CodeSite.TraceMethod(Self, 'UninstallEditorNotifier', tmoTiming); {$ENDIF}
+  for i := 0 to M.GetModuleFileCount - 1 do
+  begin
+    E := M.GetModuleFileEditor(i);
+    if Supports(E, IOTASourceEditor, SE) then
+    begin
+      iIndex := FSourceEditorNotifiers.Remove(M.FileName);
+      if iIndex > -1 then
+        SE.RemoveNotifier(iIndex);
+    end;
+    if Supports(E, IOTAFormEditor, FE) then
+    begin
+      iIndex := FFormEditorNotifiers.Remove(M.FileName);
+      if iIndex > -1 then
+        FE.RemoveNotifier(iIndex);
+    end;
+  end;
+end;
 
 (**
 
@@ -583,25 +463,22 @@ End;
   @param   FileName as a String as a constant
 
 **)
-Procedure TDGHNotificationsIDENotifier.UninstallModuleNotifier(Const M: IOTAModule;
-  Const FileName: String);
-
-Var
+procedure TDGHNotificationsIDENotifier.UninstallModuleNotifier(const M: IOTAModule; const FileName: string);
+var
   MNL: IDINModuleNotifierList;
   iIndex: Integer;
-
-Begin
+begin
   MNL := FModuleNotifiers;
   iIndex := MNL.Remove(FileName);
-  If iIndex > -1 Then
+  if iIndex > -1 then
     M.RemoveNotifier(iIndex);
   UninstallEditorNotifiers(M);
-End;
+end;
 
 {$IFDEF DXE00}
 (**
 
-  This method uninstalls the Project Compile Notifier associated with the filename and removes it from 
+  This method uninstalls the Project Compile Notifier associated with the filename and removes it from
   the Project Compile Notifier List.
 
   @precon  P must be a valid instance.
@@ -611,19 +488,16 @@ End;
   @param   FileName as a String as a constant
 
 **)
-Procedure TDGHNotificationsIDENotifier.UninstallProjectCompileNotifier(Const P: IOTAProject;
-  Const FileName: String);
-
-Var
+procedure TDGHNotificationsIDENotifier.UninstallProjectCompileNotifier(const P: IOTAProject; const FileName: string);
+var
   MNL: IDINModuleNotifierList;
   iIndex: Integer;
-
-Begin
+begin
   MNL := FProjectCompileNotifiers;
   iIndex := MNL.Remove(FileName);
-  If iIndex > -1 Then
+  if iIndex > -1 then
     P.ProjectBuilder.RemoveCompileNotifier(iIndex);
-End;
+end;
 {$ENDIF DXE00}
 
 (**
@@ -638,18 +512,17 @@ End;
   @param   FileName as a String as a constant
 
 **)
-Procedure TDGHNotificationsIDENotifier.UninstallProjectNotifier(Const M: IOTAModule;
-  Const FileName: String);
 
-Var
+procedure TDGHNotificationsIDENotifier.UninstallProjectNotifier(const M: IOTAModule; const FileName: string);
+var
   MNL: IDINModuleNotifierList;
   iIndex: Integer;
-
-Begin
+begin
   MNL := FProjectNotifiers;
   iIndex := MNL.Remove(FileName);
-  If iIndex > -1 Then
+  if iIndex > -1 then
     M.RemoveNotifier(iIndex);
-End;
+end;
 
-End.
+end.
+

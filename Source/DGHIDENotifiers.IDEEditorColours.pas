@@ -1,5 +1,5 @@
 (**
-  
+
   This module contains a class which implements the IBADIIDEEditorColours interface to extract
   the token colours from the IDE.
 
@@ -11,7 +11,7 @@
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -28,54 +28,91 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.IDEEditorColours;
+unit DGHIDENotifiers.IDEEditorColours;
 
-Interface
+interface
 
-Uses
+uses
   System.Win.Registry,
   VCL.Graphics,
   DGHIDENotifiers.Interfaces;
 
-Type
+type
   (** A class which implements the IBADIIDEEditorColours interface for getting the current IDEs
       editor colours. **)
-  TITHIDEEditorColours = Class(TInterfacedObject, IDNIDEEditorColours)
-  Strict Private
-    Function  GetIDEVersionNum(Const strBDSDir : String) : String;
-    Function  GetIDERegPoint() : String;
-    Procedure ReadHighlight(Const Reg : TRegIniFile; Const strSectionName : String;
-      Var TokenFontInfo : TDNTokenInfo);
-  Strict Protected
-    Function GetIDEEditorColours(Var iBGColour : TColor) : TDNTokenFontInfoTokenSet;
-  Public
-  End;
+  TITHIDEEditorColours = class(TInterfacedObject, IDNIDEEditorColours)
+  strict private
+    function GetIDEVersionNum(const strBDSDir: string): string;
+    function GetIDERegPoint(): string;
+    procedure ReadHighlight(const Reg: TRegIniFile; const strSectionName: string; var TokenFontInfo: TDNTokenInfo);
+  strict protected
+    function GetIDEEditorColours(var iBGColour: TColor): TDNTokenFontInfoTokenSet;
+  public
+  end;
 
-Implementation
+implementation
 
-Uses
+uses
   {$IFDEF DEBUG}
   CodeSiteLogging,
   {$ENDIF}
   System.SysUtils;
 
-Const
+const
   (** This is a default set of font information for the application. **)
-  strTokenTypeInfo : TDNTokenFontInfoTokenSet = (
-    (FForeColour : clRed;   FBackColour: clNone; FFontStyles : []         ),  
-    (FForeColour : clBlack; FBackColour: clNone; FFontStyles : []         ),  
-    (FForeColour : clBlack; FBackColour: clNone; FFontStyles : [fsBold]   ),  
-    (FForeColour : clBlack; FBackColour: clNone; FFontStyles : []         ),  
-    (FForeColour : clBlack; FBackColour: clNone; FFontStyles : []         ),  
-    (FForeColour : clBlack; FBackColour: clNone; FFontStyles : []         ),  
-    (FForeColour : clBlack; FBackColour: clNone; FFontStyles : []         ),  
-    (FForeColour : clBlack; FBackColour: clNone; FFontStyles : []         ),  
-    (FForeColour : clBlack; FBackColour: clNone; FFontStyles : [fsItalic] ),  
-    (FForeColour : clBlack; FBackColour: clNone; FFontStyles : [fsBold]   ),  
-    (FForeColour : clBlack; FBackColour: clNone; FFontStyles : [fsBold]   ),  
-    (FForeColour : clBlack; FBackColour: clAqua; FFontStyles : []         ),
-    (FForeColour : clBlack; FBackColour: clNone; FFontStyles : []         )
-  );
+  strTokenTypeInfo: TDNTokenFontInfoTokenSet = ((
+    FForeColour: clRed;
+    FBackColour: clNone;
+    FFontStyles: []
+  ), (
+    FForeColour: clBlack;
+    FBackColour: clNone;
+    FFontStyles: []
+  ), (
+    FForeColour: clBlack;
+    FBackColour: clNone;
+    FFontStyles: [fsBold]
+  ), (
+    FForeColour: clBlack;
+    FBackColour: clNone;
+    FFontStyles: []
+  ), (
+    FForeColour: clBlack;
+    FBackColour: clNone;
+    FFontStyles: []
+  ), (
+    FForeColour: clBlack;
+    FBackColour: clNone;
+    FFontStyles: []
+  ), (
+    FForeColour: clBlack;
+    FBackColour: clNone;
+    FFontStyles: []
+  ), (
+    FForeColour: clBlack;
+    FBackColour: clNone;
+    FFontStyles: []
+  ), (
+    FForeColour: clBlack;
+    FBackColour: clNone;
+    FFontStyles: [fsItalic]
+  ), (
+    FForeColour: clBlack;
+    FBackColour: clNone;
+    FFontStyles: [fsBold]
+  ), (
+    FForeColour: clBlack;
+    FBackColour: clNone;
+    FFontStyles: [fsBold]
+  ), (
+    FForeColour: clBlack;
+    FBackColour: clAqua;
+    FFontStyles: []
+  ), (
+    FForeColour: clBlack;
+    FBackColour: clNone;
+    FFontStyles: []
+  ));
 
 
 (**
@@ -89,13 +126,11 @@ Const
   @return  a TDNTokenFontInfoTokenSet
 
 **)
-Function TITHIDEEditorColours.GetIDEEditorColours(Var iBGColour : TColor) : TDNTokenFontInfoTokenSet;
-
-Const
+function TITHIDEEditorColours.GetIDEEditorColours(var iBGColour: TColor): TDNTokenFontInfoTokenSet;
+const
   strBDSEnviroVar = 'BDS';
   strHelpRegKey = 'Software\Embarcadero\%s\%s\Editor\Highlight';
-  strTokenHighlightMap : Array[TDNTokenType] Of String = (
-    'Illegal Char',                          // ttUnknown
+  strTokenHighlightMap: array[TDNTokenType] of string = ('Illegal Char',                          // ttUnknown
     'Whitespace',                            // ttWhiteSpace
     'Reserved word',                         // ttReservedWord
     'Identifier',                            // ttIdentifier
@@ -108,28 +143,26 @@ Const
     'Preprocessor',                          // ttCompilerDirective
     'Plain text',                            // ttPlainText
     'Additional search match highlight'      // ttSelection
-  );
-
-Var
-  strBDSDir: String;
+    );
+var
+  strBDSDir: string;
   R: TRegIniFile;
   eTokenType: TDNTokenType;
-
-Begin
+begin
   Result := strTokenTypeInfo;
   strBDSDir := GetEnvironmentVariable(strBDSEnviroVar);
-  If Length(strBDSDir) > 0 Then
-    Begin
-      R := TRegIniFile.Create(Format(strHelpRegKey, [GetIDERegPoint(), GetIDEVersionNum(strBDSDir)]));
-      Try
-        For eTokenType := Low(TDNTokenType) To High(TDNTokenType) Do
-          ReadHighlight(R, strTokenHighlightMap[eTokenType], Result[eTokenType]);
-        iBGColour := Result[ttPlainText].FBackColour;
-      Finally
-        R.Free;
-      End;
-    End;
-End;
+  if Length(strBDSDir) > 0 then
+  begin
+    R := TRegIniFile.Create(Format(strHelpRegKey, [GetIDERegPoint(), GetIDEVersionNum(strBDSDir)]));
+    try
+      for eTokenType := Low(TDNTokenType) to High(TDNTokenType) do
+        ReadHighlight(R, strTokenHighlightMap[eTokenType], Result[eTokenType]);
+      iBGColour := Result[ttPlainText].FBackColour;
+    finally
+      R.Free;
+    end;
+  end;
+end;
 
 (**
 
@@ -142,25 +175,22 @@ End;
   @return  a String
 
 **)
-Function TITHIDEEditorColours.GetIDERegPoint: String;
-
-Const
+function TITHIDEEditorColours.GetIDERegPoint: string;
+const
   strDefaultRegPoint = 'BDS';
   iSwitchLen = 2;
-
-Var
+var
   iParam: Integer;
-
-Begin
+begin
   Result := strDefaultRegPoint;
-  For iParam := 1 To ParamCount Do
-    If CompareText(Copy(ParamStr(iParam), 1, iSwitchLen), '-r') = 0 Then
-      Begin
-        Result := ParamStr(iParam);
-        System.Delete(Result, 1, iSwitchLen);
-        Break;
-      End;
-End;
+  for iParam := 1 to ParamCount do
+    if CompareText(Copy(ParamStr(iParam), 1, iSwitchLen), '-r') = 0 then
+    begin
+      Result := ParamStr(iParam);
+      System.Delete(Result, 1, iSwitchLen);
+      Break;
+    end;
+end;
 
 (**
 
@@ -173,11 +203,10 @@ End;
   @return  a String
 
 **)
-Function TITHIDEEditorColours.GetIDEVersionNum(Const strBDSDir: String): String;
-
-Begin
+function TITHIDEEditorColours.GetIDEVersionNum(const strBDSDir: string): string;
+begin
   Result := ExtractFileName(strBDSDir);
-End;
+end;
 
 (**
 
@@ -193,10 +222,8 @@ End;
   @param   TokenFontInfo  as a TDNTokenInfo as a reference
 
 **)
-Procedure TITHIDEEditorColours.ReadHighlight(Const Reg : TRegIniFile; Const strSectionName : String;
-  Var TokenFontInfo : TDNTokenInfo);
-
-Const
+procedure TITHIDEEditorColours.ReadHighlight(const Reg: TRegIniFile; const strSectionName: string; var TokenFontInfo: TDNTokenInfo);
+const
   strDefaultForeground = 'Default Foreground';
   strForegroundColorNew = 'Foreground Color New';
   strDefaultBackground = 'Default Background';
@@ -206,32 +233,26 @@ Const
   strUnderline = 'Underline';
   strTrue = 'True';
   strFalse = 'False';
-
-Begin
+begin
   // Foreground
-  If CompareText(Reg.ReadString(strSectionName, strDefaultForeground, strTrue), strTrue) = 0 Then
+  if CompareText(Reg.ReadString(strSectionName, strDefaultForeground, strTrue), strTrue) = 0 then
     TokenFontInfo.FForeColour := clNone
-  Else
-    TokenFontInfo.FForeColour := StringToColor(Reg.ReadString(
-      strSectionName,
-      strForegroundColorNew,
-      ColorToString(TokenFontInfo.FForeColour)));
+  else
+    TokenFontInfo.FForeColour := StringToColor(Reg.ReadString(strSectionName, strForegroundColorNew, ColorToString(TokenFontInfo.FForeColour)));
   // Background
-  If CompareText(Reg.ReadString(strSectionName, strDefaultBackground, strTrue), strTrue) = 0 Then
+  if CompareText(Reg.ReadString(strSectionName, strDefaultBackground, strTrue), strTrue) = 0 then
     TokenFontInfo.FBackColour := clNone
-  Else
-    TokenFontInfo.FBackColour := StringToColor(Reg.ReadString(
-      strSectionName,
-      strBackgroundColorNew,
-      ColorToString(TokenFontInfo.FBackColour)));
+  else
+    TokenFontInfo.FBackColour := StringToColor(Reg.ReadString(strSectionName, strBackgroundColorNew, ColorToString(TokenFontInfo.FBackColour)));
   // Styles
   TokenFontInfo.FFontStyles := [];
-  If CompareText(Reg.ReadString(strSectionName, strBold, strFalse), strTrue) = 0 Then
+  if CompareText(Reg.ReadString(strSectionName, strBold, strFalse), strTrue) = 0 then
     Include(TokenFontInfo.FFontStyles, fsBold);
-  If CompareText(Reg.ReadString(strSectionName, strItalic, strFalse), strTrue) = 0 Then
+  if CompareText(Reg.ReadString(strSectionName, strItalic, strFalse), strTrue) = 0 then
     Include(TokenFontInfo.FFontStyles, fsItalic);
-  If CompareText(Reg.ReadString(strSectionName, strUnderline, strFalse), strTrue) = 0 Then
+  if CompareText(Reg.ReadString(strSectionName, strUnderline, strFalse), strTrue) = 0 then
     Include(TokenFontInfo.FFontStyles, fsUnderline);
-End;
+end;
 
-End.
+end.
+

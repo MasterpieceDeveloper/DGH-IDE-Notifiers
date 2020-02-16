@@ -1,17 +1,17 @@
 (**
-  
+
   This module contains a class which implements an IOTAFormNotifier interfaces for capturing form
   changes.
 
   @Author  David Hoyle
   @Version 1.008
   @Date    08 Feb 2020
-  
+
   @license
 
     DGH IDE Notifiers is a RAD Studio plug-in to logging RAD Studio IDE notifications
     and to demostrate how to use various IDE notifiers.
-    
+
     Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/DGH-IDE-Notifiers/)
 
     This program is free software: you can redistribute it and/or modify
@@ -28,28 +28,28 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
-Unit DGHIDENotifiers.FormNotifier;
+unit DGHIDENotifiers.FormNotifier;
 
-Interface
+interface
 
-Uses
+uses
   ToolsAPI,
   DGHIDENotifiers.ModuleNotifier;
 
-Type
+type
   (** A class to implement an IOTAFormNotifier interface. **)
-  TDINFormNotifier = Class(TDNModuleNotifier, IInterface, IOTANotifier, IOTAFormNotifier)
-  Strict Private
-  {$IFDEF D2010} Strict {$ENDIF} Protected
-    Procedure ComponentRenamed(ComponentHandle: Pointer; Const OldName: String; Const NewName: String);
-    Procedure FormActivated;
-    Procedure FormSaving;
-  Public
-  End;
+  TDINFormNotifier = class(TDNModuleNotifier, IInterface, IOTANotifier, IOTAFormNotifier)
+  strict private
+  {$IFDEF D2010}   strict {$ENDIF} protected
+    procedure ComponentRenamed(ComponentHandle: Pointer; const OldName: string; const NewName: string);
+    procedure FormActivated;
+    procedure FormSaving;
+  public
+  end;
 
-Implementation
+implementation
 
-Uses
+uses
   SysUtils;
 
 { TDNFormNotifier }
@@ -68,24 +68,12 @@ Uses
   @param   NewName         as a String as a constant
 
 **)
-Procedure TDINFormNotifier.ComponentRenamed(ComponentHandle: Pointer; Const OldName,
-  NewName: String);
-
-ResourceString
+procedure TDINFormNotifier.ComponentRenamed(ComponentHandle: Pointer; const OldName, NewName: string);
+resourcestring
   strComponentRenamed = '.ComponentRenamed = ComponentHandle: %p, OldName: %s, NewName: %s';
-
-Begin
-  DoNotification(
-    Format(
-      strComponentRenamed,
-      [
-        ComponentHandle,
-        OldName,
-        NewName
-      ]
-    )
-  );
-End;
+begin
+  DoNotification(Format(strComponentRenamed, [ComponentHandle, OldName, NewName]));
+end;
 
 (**
 
@@ -95,14 +83,12 @@ End;
   @postcon A notifications is output.
 
 **)
-Procedure TDINFormNotifier.FormActivated;
-
-ResourceString
+procedure TDINFormNotifier.FormActivated;
+resourcestring
   strFormActivated = '.FormActivated';
-
-Begin
+begin
   DoNotification(strFormActivated);
-End;
+end;
 
 (**
 
@@ -112,13 +98,12 @@ End;
   @postcon A notifications is output.
 
 **)
-Procedure TDINFormNotifier.FormSaving;
-
-ResourceString
+procedure TDINFormNotifier.FormSaving;
+resourcestring
   strFormSaving = '.FormSaving';
-
-Begin
+begin
   DoNotification(strFormSaving);
-End;
+end;
 
-End.
+end.
+
